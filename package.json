@@ -1,0 +1,12 @@
+{
+  "name": "NIWA",
+  "version": "0.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Morgas01/NIWA"
+  },
+  "dependencies": {
+    "Morgas": "git+https://github.com/Morgas01/Morgas.js.git",
+    "bunyan": "^1.8.1"
+  }
+}
