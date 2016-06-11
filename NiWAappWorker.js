@@ -36,7 +36,6 @@ worker.restCall=function(param)
 		{
 			method=method[param.path[i++]];
 		}
-		console.log(param.path.slice(0,i),method,param.path.slice(i))
 		if(!method)
 		{
 			return Promise.reject({data:"no such method: "+param.path.slice(0,i)});

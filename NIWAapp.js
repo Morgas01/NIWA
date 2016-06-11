@@ -40,19 +40,15 @@
 		},
 		rest:function(request,path)
 		{
-			return this.stateGuard.then(function()
-			{
-				return this.request("restCall",{
+			return this.stateGuard.then(()=>
+				this.request("restCall",{
 					path:path,
 					query:querystring.parse(URL.parse(request.url).query),
 					headers:request.headers,
 					method:request.method
-				});
-			},
-			function(error)
-			{
-				return Promise.reject({data:error,status:500})
-			});
+				})
+			,
+			error=>Promise.reject({data:error,status:500}));
 		}
 	});
 	module.exports=SMOD("NIWAapp",NIWAapp);

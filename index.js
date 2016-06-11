@@ -30,7 +30,19 @@ var server=http.createServer(function(request,response)
 	else
 	{
 		var requestPath=request.url.slice(1).split("/");
-		if(activeApps.has(requestPath[0]))
+		if(requestPath.length==1||requestPath[1]=="")
+		{
+			var newUrl="http://"+request.headers['host']+"/"+requestPath[0]+"/index.html";
+			logger.info(`redirect ${request.url} to ${newUrl}`);
+			fillResponse(response,http.STATUS_CODES[302]+ '. Redirecting to ' + requestPath[0]+"/index.html",{
+				'Location': newUrl
+			},302);
+		}
+		else if(requestPath[0]=="morgas")
+		{
+			fillResponse(response,new SC.File(µ.dirname).changePath(requestPath.slice(1).join("/")));
+		}
+		else if(activeApps.has(requestPath[0]))
 		{//app
 			var app=activeApps.get(requestPath[0]);
 			if(requestPath.length==1) requestPath.push("index.html");
