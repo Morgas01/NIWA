@@ -11,9 +11,9 @@ var NIWAapp=require("./NIWAapp");
 
 //var config=require("./config");
 var config={
-	port:8080,
+	port:8081,
 	//apps:["../NIWA-storage"]
-	apps:["C:/temp/test"]
+	apps:["../NIWA-Storage","../Morgas.js"]
 };
 var LOG=require("./logger");
 var logger=LOG.setCoreLogger(LOG("main"));
@@ -48,7 +48,7 @@ var server=http.createServer(function(request,response)
 			if(requestPath.length==1) requestPath.push("index.html");
 			if(requestPath[1]!="rest")
 			{//static resource
-				fillResponse(response,app.folder.clone().changePath(requestPath.slice(1).join("/")));
+				fillResponse(response,app.folder.clone().changePath(requestPath.slice(1).join("/").replace(/\?.*/,"")));
 			}
 			else
 			{//restService
@@ -92,6 +92,8 @@ var fillResponse=function(response,data,headers,status)
 	else if (data instanceof Object) fillResponse(response,JSON.stringify(data),{"Content-Type":"application/json"});
 	else
 	{
+		if(data==undefined)data="";
+		else data+="";
 		response.writeHead(status||200, SC.adopt.setDefaults({
 			"Content-Type":"text/plain",
 			"Content-Length":Buffer.byteLength(data, 'utf8')
