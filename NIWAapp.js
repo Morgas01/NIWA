@@ -26,12 +26,12 @@
 				switch(event.value.state)
 				{
 					case "running":
-						this.logger.info("started");
-						this.stateGuard.resolve(event.data);
+						this.logger.info({initData:event.value.data},"started");
+						this.stateGuard.resolve(event.value.data);
 						break;
 					case "error":
-						this.logger.error({error:event.error});
-						this.stateGuard.reject(event.error);
+						this.logger.error({error:event.value.error},"error");
+						this.stateGuard.reject(event.value.error);
 						this.stateGuard=SC.Promise.reject(null,this);
 						break;
 				}
@@ -40,12 +40,20 @@
 		},
 		rest:function(request,path)
 		{
-			return this.stateGuard.then(()=>
+			return new SC.Promise([function(signal)
+			{
+				var data="";
+				request.on("data",d=>data+=d);
+				request.on("end",()=>signal.resolve(data==""?null:JSON.parse(data)));
+				request.on("error",(e)=>signal.reject(e));
+			},this.stateGuard])
+			.then((data)=>
 				this.request("restCall",{
+					method:request.method,
+					headers:request.headers,
 					path:path,
 					query:querystring.parse(URL.parse(request.url).query),
-					headers:request.headers,
-					method:request.method
+					data:data
 				})
 			,
 			error=>Promise.reject({data:error,status:500}));
