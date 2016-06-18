@@ -11,12 +11,25 @@ worker.init=function(param)
 {
 	logger=LOG.setCoreLogger(LOG("apps/"+param.name));
 	
-	return new SC.File("rest").listFiles().then(files=>
-		files.filter(s=>s.slice(-3)===".js").map(s=>s.slice(0,-3))//cut ".js"
-		.forEach(script=>
-			rest[script]=require(new SC.File("./rest").changePath(script).getAbsolutePath())
-		)
-	);
+	return new SC.File("rest").exists()
+	.then(function()
+	{
+		return this.listFiles().then(files=>
+			files.filter(s=>s.slice(-3)===".js").map(s=>s.slice(0,-3))//cut ".js"
+			.forEach(script=>
+				rest[script]=require(new SC.File("./rest").changePath(script).getAbsolutePath())
+			)
+		);
+	},
+	function()
+	{
+		return "'rest' folder does not exist";
+	})
+	.catch(e=>
+	{
+		setTimeout(function(){throw e;},1) //for native error message
+		return Promise.reject(LOG.errorSerializer(e));
+	});
 }
 worker.restCall=function(param)
 {
