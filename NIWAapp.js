@@ -4,7 +4,8 @@
 	
 	SC=SC({
 		File:"File",
-		Promise:"Promise"
+		Promise:"Promise",
+		fillResponse:require.bind(null,"./lib/fillResponse")
 	});
 	
 	var LOG=require("./logger");
@@ -18,6 +19,7 @@
 			this.logger=LOG("main").child({app:name});
 			this.folder=new SC.File(path);
 			this.mega(new SC.File(__dirname).changePath("NIWAappWorker").filePath,{name:name},path);
+			this.eventSources=new Map();
 			
 			this.stateGuard=SC.Promise.open(this);
 			
@@ -36,7 +38,20 @@
 						break;
 				}
 			});
-			
+			setInterval(()=>
+			{
+				for(var context of this.eventSources.keys())
+				{
+					this.sendEvent(context,"ping",process.uptime())
+				}
+			},60000).unref();
+			this.addListener("message",this,function(message)
+			{
+				if(message.event)
+				{
+					this.sendEvent(message.context,message.event,message.data);
+				}
+			});
 		},
 		rest:function(request,path)
 		{
@@ -57,6 +72,57 @@
 				})
 			,
 			error=>Promise.reject({data:error,status:500}));
+		},
+		sendEvent:function(context, event, data)
+		{
+			var eventSource=this.eventSources.get(context);
+			if(eventSource)
+			{
+				data=JSON.stringify(data);
+				for(var response of eventSource)
+				{
+					response.write(String.raw
+`event: ${event}
+data: ${data}
+
+`					);
+				}
+			}
+		},
+		eventSource:function(request,context,response)
+		{
+			this.request("getEventData",context).then(function(initData)
+			{
+				if(initData==null) return Promise.reject("no such context "+context);
+				else if(request.headers.accept==="text/event-stream")
+				{
+					response.writeHead(200, {"Content-Type":"text/event-stream", "Cache-Control":"no-cache", "Connection":"keep-alive"});
+					response.write(String.raw
+`retry: 5000
+event: init
+data: ${JSON.stringify(initData)}
+
+`					);
+					
+					var eventSources=this.eventSources.get(context)||[];
+					this.eventSources.set(context,eventSources);
+					eventSources.push(response);
+					request.connection.addListener("close", function ()
+					{
+						var index=eventSources.indexOf(response);
+						if(index===-1)this.logger.error("could not find response in eventSources");
+						else eventSources.splice(index,1);
+					});
+				}
+				else
+				{//get request
+					SC.fillResponse(response,initData);
+				}
+			})
+			.catch(function(e)
+			{
+				SC.fillResponse(response,e,null,404);
+			})
 		}
 	});
 	module.exports=SMOD("NIWAapp",NIWAapp);

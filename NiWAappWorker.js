@@ -58,9 +58,16 @@ worker.restCall=function(param)
 			param.path=param.path.slice(i);
 			param.headers=null;
 			param.status=null;
-			return Promise.resolve(method.apply(null,[param,param.path]))
+			return Promise.resolve(method.apply(null,[param].concat(param.path)))
 			.then(data=>({data:data,headers:param.headers,status:param.status}),
 			error=>Promise.reject({data:error,headers:param.headers,status:param.status}));
 		}
 	}
 };
+worker.eventData=new Map();
+worker.event=function(context,data,event,eventData)
+{
+	worker.eventData.set(context,data);
+	worker.send({context:context,event:event,data:eventData});
+};
+worker.getEventData=worker.eventData.get.bind(worker.eventData);

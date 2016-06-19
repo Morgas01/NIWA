@@ -5,7 +5,8 @@ var http=require("http");
 var SC=µ.shortcut({
 	File:"File",
 	fileUtils:"File.util",
-	adopt:"adopt"
+	adopt:"adopt",
+	fillResponse:require.bind(null,"./lib/fillResponse")
 });
 var NIWAapp=require("./NIWAapp");
 
@@ -34,84 +35,39 @@ var server=http.createServer(function(request,response)
 		{
 			var newUrl="http://"+request.headers['host']+"/"+requestPath[0]+"/index.html";
 			logger.info(`redirect ${request.url} to ${newUrl}`);
-			fillResponse(response,http.STATUS_CODES[302]+ '. Redirecting to ' + requestPath[0]+"/index.html",{
+			SC.fillResponse(response,http.STATUS_CODES[302]+ '. Redirecting to ' + requestPath[0]+"/index.html",{
 				'Location': newUrl
 			},302);
 		}
 		else if(requestPath[0]=="morgas")
 		{
-			fillResponse(response,new SC.File(µ.dirname).changePath(requestPath.slice(1).join("/")));
+			SC.fillResponse(response,new SC.File(µ.dirname).changePath(requestPath.slice(1).join("/")));
 		}
 		else if(activeApps.has(requestPath[0]))
 		{//app
 			var app=activeApps.get(requestPath[0]);
 			if(requestPath.length==1) requestPath.push("index.html");
-			if(requestPath[1]!="rest")
-			{//static resource
-				fillResponse(response,app.folder.clone().changePath(requestPath.slice(1).join("/").replace(/\?.*/,"")));
-			}
-			else
+			if(requestPath[1]=="rest")
 			{//restService
 				app.rest(request,requestPath.slice(2))
-				.then(result=>fillResponse(response,result.data,result.headers,result.status),
-				error=>fillResponse(response,error.data,error.headers,error.status||400));
+				.then(result=>SC.fillResponse(response,result.data,result.headers,result.status),
+				error=>SC.fillResponse(response,error.data,error.headers,error.status||400));
+			}
+			else if(requestPath[1]=="event")
+			{//event source
+				app.eventSource(request,requestPath.slice(2).join("/").replace(/\?.*/,""),response);
+			}
+			else
+			{//static resource
+				SC.fillResponse(response,app.folder.clone().changePath(requestPath.slice(1).join("/").replace(/\?.*/,"")));
 			}
 		}
 		else
 		{//unknown app
-			fillResponse(response,`no such app "${requestPath[0]}"`,null,501)
+			SC.fillResponse(response,`no such app "${requestPath[0]}"`,null,501)
 		}
 	}
 });
-var fillResponse=function(response,data,headers,status)
-{
-	if(data instanceof SC.File)
-	{
-		data.stat().then(stat=>
-		{
-			if(stat.isFile())
-			{
-				response.writeHead(status||200,{
-					"Content-Type":getMimeType(data),
-					"Content-Length":stat.size
-				});
-				return data.readStream()
-				.then(stream=>stream.pipe(response));
-			}
-			else
-			{
-				return Promise.reject(data.filePath+" is not a file");
-			}
-		})
-		.catch(function(e)
-		{//error
-			fillResponse(response,e,null,404);
-		});
-	}
-	else if(data instanceof Error) fillResponse(response,data.message+"\n\n"+data.stack,null,status||500);
-	else if (data instanceof Object) fillResponse(response,JSON.stringify(data),{"Content-Type":"application/json"});
-	else
-	{
-		if(data==undefined)data="";
-		else data+="";
-		response.writeHead(status||200, SC.adopt.setDefaults({
-			"Content-Type":"text/plain",
-			"Content-Length":Buffer.byteLength(data, 'utf8')
-		},headers,true));
-		response.end(data);
-	}
-};
-var getMimeType=function(file)
-{
-	switch(file.getExt())
-	{
-		case ".html":	return "text/html";
-		case ".css":	return "text/css";
-		case ".js":		return "application/javascript";
-		case ".svg":	return "image/svg+xml";
-		default : 		return "application/octet-stream";
-	}
-}
 server.listen(config.port,function(e)
 {
 	if(e){
