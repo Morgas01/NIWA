@@ -60,7 +60,8 @@ worker.restCall=function(param)
 			param.status=null;
 			return Promise.resolve(method.apply(null,[param].concat(param.path)))
 			.then(data=>({data:data,headers:param.headers,status:param.status}),
-			error=>Promise.reject({data:error,headers:param.headers,status:param.status}));
+			error=>Promise.reject({error:LOG.errorSerializer(error),headers:param.headers,status:param.status})
+			);
 		}
 	}
 };

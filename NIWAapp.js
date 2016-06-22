@@ -71,7 +71,7 @@
 					data:data
 				})
 			,
-			error=>Promise.reject({data:error,status:500}));
+			error=>Promise.reject({error:error,status:500}));
 		},
 		sendEvent:function(context, event, data)
 		{

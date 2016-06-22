@@ -51,7 +51,7 @@ var server=http.createServer(function(request,response)
 			{//restService
 				app.rest(request,requestPath.slice(2))
 				.then(result=>SC.fillResponse(response,result.data,result.headers,result.status),
-				error=>SC.fillResponse(response,error.data,error.headers,error.status||400));
+				error=>SC.fillResponse(response,error.error,error.headers,error.status||400));
 			}
 			else if(requestPath[1]=="event")
 			{//event source
