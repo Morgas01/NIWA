@@ -8,25 +8,29 @@
 	var bunyan=require("bunyan");
 	
 	var logFolder=new SC.File(__dirname).changePath("logs");
-	SC.fileUtils.enshureDir(logFolder);
+	var loggers=new Map();
 
 	module.exports=function(name)
 	{
-		return bunyan.createLogger({
-			name:name,
-			streams:[
-				{stream: process.stdout},
-				{
-					type: "rotating-file",
-					path:logFolder.clone().changePath(name+".log").filePath,
-					period:"1d",
-					count:7
+		if(!loggers.has(name))
+		{
+			loggers.set(name,bunyan.createLogger({
+				name:name,
+				streams:[
+					{stream: process.stdout},
+					{
+						type: "rotating-file",
+						path:logFolder.clone().changePath(name+".log").filePath,
+						period:"1d",
+						count:7
+					}
+				],
+				serializers: {
+					error: module.exports.errorSerializer
 				}
-			],
-			serializers: {
-				error: module.exports.errorSerializer
-			}
-		});
+			}));
+		}
+		return loggers.get(name);
 	};
 	module.exports.errorSerializer=function(error)
 	{
