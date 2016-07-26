@@ -6,7 +6,8 @@ var SC=µ.shortcut({
 	File:"File",
 	fileUtils:"File.util",
 	adopt:"adopt",
-	fillResponse:require.bind(null,"./lib/fillResponse")
+	fillResponse:require.bind(null,"./lib/fillResponse"),
+	gui:require.bind(null,"MorgasGui")
 });
 var NIWAapp=require("./NIWAapp");
 
@@ -14,15 +15,14 @@ var NIWAapp=require("./NIWAapp");
 var config={
 	port:8081,
 	//apps:["../NIWA-storage"]
-	apps:["../NIWA-Storage","../Morgas.js"]
+	apps:["../NIWA-Storage","../Morgas.js","../MorgasGui","apps/gardener"]
 };
 var LOG=require("./logger");
 var logger=LOG.setCoreLogger(LOG("main"));
 
 var activeApps=new Map();
 
-logger.info(`starting server with port ${config.port}`);
-var server=http.createServer(function(request,response)
+var handleRequest=function(request,response)
 {
 	logger.info({url:request.url},"access");
 	if(request.url==="/")
@@ -40,8 +40,8 @@ var server=http.createServer(function(request,response)
 			},302);
 		}
 		else if(requestPath[0]=="morgas")
-		{
-			SC.fillResponse(response,new SC.File(µ.dirname).changePath(requestPath.slice(1).join("/")));
+		{// morgas sources
+			handleMorgasSources(request,response,requestPath);
 		}
 		else if(activeApps.has(requestPath[0]))
 		{//app
@@ -67,7 +67,38 @@ var server=http.createServer(function(request,response)
 			SC.fillResponse(response,`no such app "${requestPath[0]}"`,null,501)
 		}
 	}
-});
+};
+var getStyle=function(path)
+{
+	path=path.split("?");
+	path=push("default");
+	return new SC.Promise([
+		new SC.File(µ.gui.dirname).changePath("less/theme/"+path[1]).read(),
+		new SC.File(µ.gui.dirname).changePath("less/structure/"+path[0]).read(),
+		new SC.File(µ.gui.dirname).changePath("less/style/"+path[0]).read(),
+	]).then(function(theme,structure,style)
+	{
+		return SC.less.render(theme+"\n"+structure+"\n"+style);
+	});
+}
+var handleMorgasSources=function(request,response,requestPath)
+{
+	if(requestPath[1]=="gui")
+	{
+		if(requestPath[2]=="css")
+		{
+			SC.fillResponse(response,SC.gui.getStyle(requestPath.slice(3).join("/")),{"Content-Type":SC.fillResponse.getMimeType(".css")});
+		}
+		else
+		{
+			SC.fillResponse(response,new SC.File(SC.gui.dirname).changePath(requestPath.slice(2).join("/")));
+		}
+	}
+	else SC.fillResponse(response,new SC.File(µ.dirname).changePath(requestPath.slice(1).join("/")));
+}
+
+logger.info(`starting server with port ${config.port}`);
+var server=http.createServer(handleRequest);
 server.listen(config.port,function(e)
 {
 	if(e){
@@ -76,7 +107,7 @@ server.listen(config.port,function(e)
 	else
 	{
 		logger.info("server startet");
-		
+
 		for(app of config.apps)
 		{
 			var path,name;
