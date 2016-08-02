@@ -9,18 +9,11 @@ var SC=µ.shortcut({
 	fillResponse:require.bind(null,"./lib/fillResponse"),
 	gui:require.bind(null,"MorgasGui")
 });
-var NIWAapp=require("./NIWAapp");
 
-//var config=require("./config");
-var config={
-	port:8081,
-	//apps:["../NIWA-storage"]
-	apps:["../NIWA-Storage","../Morgas.js","../MorgasGui","apps/gardener"]
-};
 var LOG=require("./logger");
 var logger=LOG.setCoreLogger(LOG("main"));
-
-var activeApps=new Map();
+var config=require("./config");
+var backGarden=require("./lib/backGarden");
 
 var handleRequest=function(request,response)
 {
@@ -43,8 +36,10 @@ var handleRequest=function(request,response)
 		{// morgas sources
 			handleMorgasSources(request,response,requestPath);
 		}
-		else if(activeApps.has(requestPath[0]))
+		else if(backGarden.has(requestPath[0]))
 		{//app
+			backGarden.handleRequest(requestPath[0],request,response,requestPath.slice(1));
+			/*
 			var app=activeApps.get(requestPath[0]);
 			if(requestPath.length==1) requestPath.push("index.html");
 			if(requestPath[1]=="rest")
@@ -55,12 +50,15 @@ var handleRequest=function(request,response)
 			}
 			else if(requestPath[1]=="event")
 			{//event source
-				app.eventSource(request,requestPath.slice(2).join("/").replace(/\?.*/,""),response);
+				app.eventSource(request,requestPath.slice(2).join("/").replace(/\?.*
+				/,""),response);
 			}
 			else
 			{//static resource
-				SC.fillResponse(response,app.folder.clone().changePath(requestPath.slice(1).join("/").replace(/\?.*/,"")));
+				SC.fillResponse(response,app.folder.clone().changePath(requestPath.slice(1).join("/").replace(/\?.*
+				/,"")));
 			}
+			*/
 		}
 		else
 		{//unknown app
@@ -108,28 +106,6 @@ server.listen(config.port,function(e)
 	{
 		logger.info("server startet");
 
-		for(app of config.apps)
-		{
-			var path,name;
-			if(typeof app=="string")
-			{
-				path=app;
-				name=new SC.File(path).getName();
-			}
-			else // array
-			{
-				path=app[0];
-				name=app[1];
-			}
-			if(!activeApps.has(name))
-			{
-				logger.info(`starting app ${path} as ${name}`);
-				activeApps.set(name,new NIWAapp(name,path));
-			}
-			else
-			{
-				logger.warn(`app with name "${name}" is already running`);
-			}
-		}
+		backGarden.initApps();
 	}
 });
