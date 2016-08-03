@@ -8,7 +8,8 @@
   "dependencies": {
     "Morgas": "git+https://github.com/Morgas01/Morgas.js.git",
     "MorgasGui": "git+https://github.com/Morgas01/MorgasGui.git",
-    "bunyan": "^1.8.1"
+    "bunyan": "^1.8.1",
+    "less": "^2.7.1"
   },
   "scripts": {
     "start": "node index | bunyan"

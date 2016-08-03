@@ -1,0 +1,14 @@
+@import "variables";
+
+.whole-page();
+
+#apps {
+	width:100%;
+	height: 100%;
+	& .selectionTable {
+		width: 100%;
+		& > * > * > *:first-child {
+			width: 0;
+		}
+	}
+}
