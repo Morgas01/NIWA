@@ -5,4 +5,3 @@ var config=module.exports={
 };
 
 //TODO pars process args
-config.apps=["../NIWA-Storage","../Morgas.js","../MorgasGui","apps/gardener"]

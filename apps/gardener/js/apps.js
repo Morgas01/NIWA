@@ -11,7 +11,12 @@
 		request.json("rest/app/list").then(function(data)
 		{
 			if(appTable) appTable.remove();
-			appTable=selectionTable(new TableData(data,["name","state","path"]));
+			appTable=selectionTable(new TableData(data,[
+				{name:"name",fn:(cell,data)=>cell.innerHTML=String.raw`<a href="/${data.name}" target="_top">${data.name}</a>`},
+				{name:"ID",getter:app=>app.id},
+				"state",
+				{name:"dependencies",getter:app=>app.dependencies?app.dependencies.join("\n"):""}
+				,"path"]));
 			tableContainer.appendChild(appTable);
 		},
 		function()
