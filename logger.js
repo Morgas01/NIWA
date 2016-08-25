@@ -1,12 +1,13 @@
+var µ=require("Morgas");
 (function(µ,SMOD,GMOD,HMOD,SC){
-		
+
 	SC=SC({
 		File:"File",
 		fileUtils:"File.util"
 	})
-	
+
 	var bunyan=require("bunyan");
-	
+
 	var logFolder=new SC.File(__dirname).changePath("logs");
 	var loggers=new Map();
 
@@ -42,11 +43,15 @@
 			};
 		return error
 	};
-	
+
 	module.exports.setCoreLogger=function(coreLogger)
 	{
 		µ.logger.out=function(level,msg)
 		{
+			if(msg.length==1&&msg[0]instanceof µ.Warning)
+			{
+				msg=[{error:msg[0].error,warning:msg[0]},msg[0].message];
+			}
 			var fn;
 			switch(level)
 			{
