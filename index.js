@@ -39,26 +39,6 @@ var handleRequest=function(request,response)
 		else if(backGarden.has(requestPath[0]))
 		{//app
 			backGarden.handleRequest(requestPath[0],request,response,requestPath.slice(1));
-			/*
-			var app=activeApps.get(requestPath[0]);
-			if(requestPath.length==1) requestPath.push("index.html");
-			if(requestPath[1]=="rest")
-			{//restService
-				app.rest(request,requestPath.slice(2))
-				.then(result=>SC.fillResponse(response,result.data,result.headers,result.status),
-				error=>SC.fillResponse(response,error.error,error.headers,error.status||400));
-			}
-			else if(requestPath[1]=="event")
-			{//event source
-				app.eventSource(request,requestPath.slice(2).join("/").replace(/\?.*
-				/,""),response);
-			}
-			else
-			{//static resource
-				SC.fillResponse(response,app.folder.clone().changePath(requestPath.slice(1).join("/").replace(/\?.*
-				/,"")));
-			}
-			*/
 		}
 		else
 		{//unknown app
