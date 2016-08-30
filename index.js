@@ -20,6 +20,7 @@ var handleRequest=function(request,response)
 	logger.info({url:request.url},"access");
 	if(request.url==="/")
 	{//redirect
+		//TODO
 	}
 	else
 	{
