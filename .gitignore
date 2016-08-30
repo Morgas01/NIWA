@@ -8,4 +8,5 @@ target/
 node_modules/
 build/
 logs/
+config/
 *.log
