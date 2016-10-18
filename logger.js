@@ -4,7 +4,7 @@ var µ=require("Morgas");
 	SC=SC({
 		File:"File",
 		fileUtils:"File.util"
-	})
+	});
 
 	var bunyan=require("bunyan");
 
@@ -15,13 +15,15 @@ var µ=require("Morgas");
 	{
 		if(!loggers.has(name))
 		{
+			var logFile=logFolder.clone().changePath(name+".log");
+			SC.fileUtils.enshureDirSync(logFile.clone().changePath(".."));
 			loggers.set(name,bunyan.createLogger({
 				name:name,
 				streams:[
 					{stream: process.stdout},
 					{
 						type: "rotating-file",
-						path:logFolder.clone().changePath(name+".log").filePath,
+						path:logFile.filePath,
 						period:"1d",
 						count:7
 					}
