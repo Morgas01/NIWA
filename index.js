@@ -12,12 +12,13 @@ var SC=µ.shortcut({
 
 var LOG=require("./logger");
 var logger=LOG.setCoreLogger(LOG("main"));
+var accessLogger=LOG("access");
 var config=require("./config");
 var backGarden=require("./lib/backGarden");
 
 var handleRequest=function(request,response)
 {
-	logger.info({url:request.url},"access");
+	accessLogger.info({url:request.url});
 	if(request.url==="/")
 	{//redirect
 		//TODO
