@@ -3,7 +3,8 @@ var µ=require("Morgas");
 
 	SC=SC({
 		File:"File",
-		fileUtils:"File.util"
+		fileUtils:"File.util",
+		es:"errorSerializer"
 	});
 
 	var bunyan=require("bunyan");
@@ -29,21 +30,11 @@ var µ=require("Morgas");
 					}
 				],
 				serializers: {
-					error: module.exports.errorSerializer
+					error: SC.es
 				}
 			}));
 		}
 		return loggers.get(name);
-	};
-	module.exports.errorSerializer=function(error)
-	{
-		if(error instanceof Error)
-			return {
-				name:error.name,
-				message:error.message,
-				stack:error.stack
-			};
-		return error
 	};
 
 	module.exports.setCoreLogger=function(coreLogger)
