@@ -67,7 +67,16 @@ var handleMorgasSources=function(request,response,requestPath)
 	{
 		if(requestPath[2]=="css")
 		{
-			SC.fillResponse(response,SC.gui.getStyle(requestPath.slice(3).join("/")),{"Content-Type":SC.fillResponse.getMimeType(".css")});
+			if(requestPath[3]=="theme")
+			{
+				//TODO pass theme components
+				SC.fillResponse(response,SC.gui.getTheme(requestPath.slice(4).join("/")),{"Content-Type":SC.fillResponse.getMimeType(".css")});
+			}
+			else
+			{
+				//TODO pass component's theme
+				SC.fillResponse(response,SC.gui.getComponentStyle(requestPath.slice(3).join("/")),{"Content-Type":SC.fillResponse.getMimeType(".css")});
+			}
 		}
 		else
 		{
