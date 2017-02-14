@@ -1,8 +1,6 @@
-var µ=require("Morgas");
-var gui=require("MorgasGui");
 (function(µ,SMOD,GMOD,HMOD,SC){
 
-	var SC=µ.shortcut({
+	SC=SC({
 		File:"File",
 		util:"File.util",
 		Config:"Config"
