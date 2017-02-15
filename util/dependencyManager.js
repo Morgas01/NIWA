@@ -1,6 +1,7 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
 
 	var gui=require("MorgasGui");
+	var Concat=require("concat-with-sourcemaps");
 
 	SC=SC({
 		dependencyParser:require.bind(null,"Morgas/dependencyParser"),
@@ -12,22 +13,20 @@
 		File:"File"
 	});
 
-	var morgasJsFile=new SC.File(µ.dirname).changePath("Morgas.js").getAbsolutePath().replace(/\\/g,"/");
+	var normalizePath=function(path){return path.replace(/\\/g,"/");};
+	var morgasJsFile=normalizePath(new SC.File(µ.dirname).changePath("Morgas.js").getAbsolutePath());
+
 
 	module.exports=function(files,relativeTo)
 	{
-		var resolver=new SC.DependencyResolver();
 		relativeTo=SC.File.stringToFile(relativeTo);
 
-		(new SC.dependencyParser()).addSources(files)
+		var replaceDirs=[[normalizePath(µ.dirname)+"/","/morgas/"],[normalizePath(gui.dirname)+"/","/morgas/gui/"],[normalizePath(process.cwd())+"/","../../"]];
+
+		var parser=(new SC.dependencyParser()).addSources(files)
 		.addModuleRegister(SC.morgasModuleRegister,µ.dirname).addModuleDependencies(SC.morgasModuleDependencies,µ.dirname)
-		.addModuleRegister(SC.morgasGuiModuleRegister,gui.dirname).addModuleDependencies(SC.morgasGuiModuleDependencies,gui.dirname)
-		.parse()
-		.then(function(result)
-		{
-			resolver.addConfig(result.fileDependencies);
-		})
-		.catch(µ.logger.error);
+		.addModuleRegister(SC.morgasGuiModuleRegister,gui.dirname).addModuleDependencies(SC.morgasGuiModuleDependencies,gui.dirname);
+
 
 		return function(param)
 		{
@@ -36,10 +35,26 @@
 			return file.exists()
 			.then(function()
 			{
-				var files=resolver.resolve([morgasJsFile,file.getAbsolutePath().replace(/\\/g,"/")]);
-				console.log(file.getAbsolutePath().replace(/\\/g,"/"),files)
-				return Promise.all(files.map(f=>SC.File.stringToFile(f).read()))
-				.then(files=>files.join("/********************/"));
+				return parser.parse()
+				.then(function(result)
+				{
+					var resolver=new SC.DependencyResolver(result.fileDependencies);
+					var files=resolver.resolve([morgasJsFile,normalizePath(file.getAbsolutePath())]);
+					return Promise.all(files.map(f=>SC.File.stringToFile(f).read().then(data=>[f,data])))
+					.then(function(fileContents)
+					{
+						var concat=new Concat(true,param.path.join("/"),"\n/********************/\n");
+						for (var fileContent of fileContents)
+						{
+							var name=fileContent[0];
+							var data=fileContent[1];
+							replaceDirs.forEach(p=>name=String.prototype.replace.apply(name,p));
+							concat.add(name,data);
+						}
+						return concat.content+"\n//# sourceMappingURL=data:application/json;charset=utf-8;base64," + new Buffer(concat.sourceMap).toString("base64")
+					});
+				})
+				//.then(files=>files.join("\n/********************/\n"));
 			},()=>param.status=404)
 
 		}
