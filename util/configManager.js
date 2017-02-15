@@ -9,11 +9,11 @@
 	module.exports=function(config)
 	{
 		if(!(config instanceof SC.Config)) config=SC.Config.parse(config);
-
-		var ready=SC.util.enshureDir(new SC.File(__dirname).changePath("../config"))
+		var folder=new SC.File(__dirname).changePath("../config");
+		var configFile=folder.clone().changePath(worker.name+".config.json");
+		var ready=SC.util.enshureDir(folder)
 		.then(function()
 		{
-			var configFile=folder.clone().changePath(worker.name+".config.json");
 			return SC.util.getRotatedFile(configFile,JSON.parse)
 			.then(result=>
 			{
@@ -27,7 +27,12 @@
 				}
 				config.setAll(result.data,true);
 				return config;
-			}, errors=>µ.logger.warn({errors:errors},"could not load config"));
+			})
+			.catch(function(error)
+			{
+				µ.logger.warn({error:error},"could not load config");
+				return config;
+			});
 		});
 
 		var rtn=function(param)
@@ -55,10 +60,9 @@
 						var oldValue=field.get();
 						if(field.set(param.data.value))
 						{
-							return configFile.exists().then(()=>SC.util.rotateFile(configFile,3),()=>null)
-							.then(()=>configFile.write(JSON.stringify(config)))
-							.then(()=>({result:true}));
+							var p=rtn.save();
 							setImmediate(rtn.notify,param.data.key,oldValue,field.get());
+							return p;
 						}
 					}
 					return {
@@ -109,6 +113,12 @@
 				}
 			}
 		};
+		rtn.save=function()
+		{
+			return configFile.exists().then(()=>SC.util.rotateFile(configFile,3),()=>null)
+			.then(()=>configFile.write(JSON.stringify(config)))
+			.then(()=>({result:true}));
+		}
 
 		return rtn;
 	};
