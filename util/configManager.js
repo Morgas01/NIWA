@@ -35,7 +35,7 @@
 			});
 		});
 
-		var rtn=function(param)
+		var api=function(param)
 		{
 			switch(param.method)
 			{
@@ -54,14 +54,14 @@
 					return c.toJSON();
 					break;
 				case "POST":
-					var field=param.data.key&&config.get(param.data.key);
+					var field=param.data.path&&config.get(param.data.path);
 					if(field)
 					{
 						var oldValue=field.get();
 						if(field.set(param.data.value))
 						{
-							var p=rtn.save();
-							setImmediate(rtn.notify,param.data.key,oldValue,field.get());
+							var p=api.save();
+							setImmediate(api.notify,param.data.key,oldValue,field.get());
 							return p;
 						}
 					}
@@ -69,7 +69,7 @@
 						result:false,
 						error:(field?"value refused":"field not found"),
 						usage:String.raw
-`{String|String[]} key
+`{String|String[]} path
 {*} value`
 					};
 				case "OPTIONS":
@@ -77,23 +77,107 @@
 						description:config.toDescription(),
 						value:config.toJSON()
 					};
+				case "PUT":
+					var error="undefined";
+					var container=param.data.path&&config.get(param.data.path);
+					if(container)
+					{
+						if( container instanceof SC.Config.Container.Object)
+						{
+							if(container.get(param.data.key))error="key in use";
+							else {
+								var c=container.add(param.data.key,param.data.field);
+								if(c)
+								{
+									if(param.data.value!==undefined) c.set(param.data.value);
+									return {
+										result:true
+									}
+								}
+								else error="bad or no field";
+							}
+						}
+						else if( container instanceof SC.Config.Container.Array)
+						{
+							if(param.data.key==container.length)
+							{
+								return {
+									result:!!container.push(param.data.value)
+								};
+							}
+							else if (param.data.key<container.length) error="key in use";
+							else error="key out of bounds";
+						}
+						else if( container instanceof SC.Config.Container.Map)
+						{
+							if(!container.get(param.data.key))
+							{
+								return {
+									result:!!container.add(param.data.key,param.data.value)
+								};
+							}
+							else error="key in use";
+						}
+					}
+					else error="container not found";
+					return {
+						result:false,
+						error:error,
+						usage:String.raw
+`{String|String[]} path
+{String} key
+{*} [value]
+{Object} [field] - only when container is Config.Object`
+					};
+				case "DELETE":
+					var error="undefined";
+					var container=param.data.path&&config.get(param.data.path);
+					if(container)
+					{
+						if( container instanceof SC.Config.Container.Object)
+						{
+							return {
+								result:container.remove(param.data.key)
+							};
+						}
+						else if( container instanceof SC.Config.Container.Array)
+						{
+							return {
+								result:container.splice(param.data.key)
+							};
+						}
+						else if( container instanceof SC.Config.Container.Map)
+						{
+							return {
+								result:container.remove(param.data.key)
+							};
+						}
+					}
+					else error="container not found";
+					return {
+						result:false,
+						error:error,
+						usage:String.raw
+`{String|String[]} path
+{String} key`
+					};
 			}
 		};
-		rtn.ready=ready;
+		api.ready=ready;
 		var listeners=new Map();
-		rtn.addListener=function(key,fn)
+		api.addListener=function(key,fn)
 		{
 			if(!listeners.has(key)) listeners.set(key,new Set());
 			listeners.get(key).add(fn);
 		};
-		rtn.removeListener=function(key,fn)
+		api.removeListener=function(key,fn)
 		{
 			if(listeners.has(key))
 			{
 				listeners.get(key).delete(fn);
 			}
 		};
-		rtn.notify=function(key, oldValue, newValue)
+		api.notify=function(key, oldValue, newValue)
 		{
 			if(listeners.has(key))
 			{
@@ -113,14 +197,14 @@
 				}
 			}
 		};
-		rtn.save=function()
+		api.save=function()
 		{
 			return configFile.exists().then(()=>SC.util.rotateFile(configFile,3),()=>null)
 			.then(()=>configFile.write(JSON.stringify(config)))
 			.then(()=>({result:true}));
 		}
 
-		return rtn;
+		return api;
 	};
 
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);
