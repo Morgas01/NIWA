@@ -55,10 +55,12 @@
 					break;
 				case "POST":
 					var field=param.data.path&&config.get(param.data.path);
+					var setCheck=false;
 					if(field)
 					{
 						var oldValue=field.get();
-						if(field.set(param.data.value))
+						var setCheck=field.set(param.data.value)
+						if(setCheck===true)
 						{
 							var p=api.save();
 							setImmediate(api.notify,param.data.key,oldValue,field.get());
@@ -67,7 +69,7 @@
 					}
 					return {
 						result:false,
-						error:(field?"value refused":"field not found"),
+						error:(setCheck?setCheck:(field?"value refused":"field not found")),
 						usage:String.raw
 `{String|String[]} path
 {*} value`
