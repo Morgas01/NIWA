@@ -30,6 +30,8 @@
 
 		return function(param)
 		{
+			if(param.path.length==0) return parser.parse();
+
 			var file=relativeTo.clone();
 			file.changePath.apply(file,param.path);
 			return file.exists()
@@ -56,7 +58,6 @@
 				})
 				//.then(files=>files.join("\n/********************/\n"));
 			},()=>param.status=404)
-
 		}
 	}
 
