@@ -3,7 +3,8 @@
 	SC=SC({
 		File:"File",
 		util:"File.util",
-		Config:"Config"
+		Config:"Config",
+		eq:"equals"
 	});
 
 	module.exports=function(config)
@@ -63,7 +64,7 @@
 						if(setCheck===true)
 						{
 							var p=api.save();
-							setImmediate(api.notify,param.data.key,oldValue,field.get());
+							setImmediate(api.notify,param.data.path,oldValue,field.get());
 							return p;
 						}
 					}
@@ -166,36 +167,36 @@
 			}
 		};
 		api.ready=ready;
-		var listeners=new Map();
-		api.addListener=function(key,fn)
+		var listeners=[];
+		api.addListener=function(path,fn)
 		{
-			if(!listeners.has(key)) listeners.set(key,new Set());
-			listeners.get(key).add(fn);
+			listeners.push({path:[].concat(path),fn:fn});
 		};
-		api.removeListener=function(key,fn)
+		api.removeListener=function(pathOfFn,fn)
 		{
-			if(listeners.has(key))
+			for(var i=listeners.length-1;i>=0;i--)
 			{
-				listeners.get(key).delete(fn);
+				var entry=listeners[i];
+				var pathEqual=pathOfFn.length==entry.path.length&&entry.path.every((item,index)=>pathOfFn[index]==item);
+				if(!fn&&(pathEqual||pathOfFn===entry.fn)||
+					(pathEqual&&fn==entry.fn))
+				{
+					listeners.splice(i,1);
+				}
 			}
 		};
-		api.notify=function(key, oldValue, newValue)
+		api.notify=function(path, oldValue, newValue)
 		{
-			if(listeners.has(key))
+			for(var listener of listeners)
 			{
-				for(var callback of listeners.get(key))
+				try
 				{
-					try
-					{
-						callback({
-							oldValue:oldValue,
-							newValue:newValue
-						});
-					}
-					catch(e)
-					{
-						µ.error({error:e},"error in notify callback");
-					}
+					if(SC.eq(path,listener.path))
+						listener.fn(newValue,oldValue);
+				}
+				catch(e)
+				{
+					µ.logger.error({error:e},"error in notify callback");
 				}
 			}
 		};
