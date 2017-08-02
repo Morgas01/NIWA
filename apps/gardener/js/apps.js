@@ -9,7 +9,7 @@
 		"path"],
 		{
 			noInput:true,
-			control:true
+			radioName:"app"
 		}
 	);
 	var request=GMOD("request");
