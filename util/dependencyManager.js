@@ -28,7 +28,7 @@
 		.addModuleRegister(SC.morgasGuiModuleRegister,gui.dirname).addModuleDependencies(SC.morgasGuiModuleDependencies,gui.dirname);
 
 
-		return function(param)
+		var restService=function(param)
 		{
 			if(param.path.length==0) return parser.parse();
 
@@ -58,7 +58,9 @@
 				})
 				//.then(files=>files.join("\n/********************/\n"));
 			},()=>param.status=404)
-		}
+		};
+		restService.dependencyParser=parser;
+		return restService;
 	}
 
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);
