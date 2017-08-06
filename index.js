@@ -21,10 +21,11 @@ var handleRequest=function(request,response)
 	accessLogger.info({url:request.url});
 	if(request.url==="/")
 	{//redirect
-		//TODO
+		//TODO config
 	}
 	else
 	{
+		//TODO use Url object/class
 		var requestPath=request.url.slice(1).split("/");
 		if(requestPath.length==1||requestPath[1]=="")
 		{
@@ -48,19 +49,6 @@ var handleRequest=function(request,response)
 		}
 	}
 };
-var getStyle=function(path)
-{
-	path=path.split("?");
-	path=push("default");
-	return new SC.Promise([
-		new SC.File(µ.gui.dirname).changePath("less/theme/"+path[1]).read(),
-		new SC.File(µ.gui.dirname).changePath("less/structure/"+path[0]).read(),
-		new SC.File(µ.gui.dirname).changePath("less/style/"+path[0]).read(),
-	]).then(function(theme,structure,style)
-	{
-		return SC.less.render(theme+"\n"+structure+"\n"+style);
-	});
-}
 var handleMorgasSources=function(request,response,requestPath)
 {
 	if(requestPath[1]=="gui")
