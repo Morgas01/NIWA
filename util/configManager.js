@@ -76,9 +76,19 @@
 {*} value`
 					};
 				case "OPTIONS":
+					var c=config;
+					if(param.path.length>0)
+					{
+						var c=config.get(param.path.map(decodeURIComponent));
+						if(!c)
+						{
+							param.status=404;
+							return "not found "+param.path.join("/");
+						}
+					}
 					return {
-						description:config.toDescription(),
-						value:config.toJSON()
+						description:c.toDescription(),
+						value:c.toJSON()
 					};
 				case "PUT":
 					var error="undefined";
