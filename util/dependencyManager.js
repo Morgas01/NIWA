@@ -45,7 +45,20 @@
 
 		var restService=function(param)
 		{
-			if(param.path.length==0||param.path[0]=="") return parser.parse();
+			if(param.path.length==0||param.path[0]=="")
+			{
+				return parser.parse()
+				.then(function(rtn)
+				{
+					rtn.providedModules={};
+					for(let key in parser.moduleRegister) rtn.providedModules[key]=parser.moduleRegister[key].getAbsolutePath();
+					rtn.providedDependencies={};
+					for(let key in parser.moduleDependencies) rtn.providedDependencies[key]=parser.moduleDependencies[key];
+					rtn.providedFileDependencies={};
+					for(let key in parser.fileDependencies) rtn.providedFileDependencies[key]=parser.fileDependencies[key];
+					return rtn;
+				});
+			}
 
 			var file=getFile(param.path);
 
@@ -104,7 +117,7 @@
 		{
 			if(!directory) throw "no directory";
 			directory=SC.File.stringToFile(directory);
-			if(moduleRegister) µ.addModuleRegister(moduleRegister,directory.getAbsolutePath());
+			if(moduleRegister) parser.addModuleRegister(moduleRegister,directory);
 			parser.addModuleDependencies(moduleDependencies,directory);
 
 			if(!name) name="resource_"+(resourceCounter++);
