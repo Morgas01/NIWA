@@ -21,22 +21,39 @@
 	{
 		relativeTo=SC.File.stringToFile(relativeTo);
 
-		var replaceDirs=[[normalizePath(µ.dirname)+"/","/morgas/"],[normalizePath(gui.dirname)+"/","/morgas/gui/"],[normalizePath(process.cwd())+"/","../../"]];
+		var replaceDirs=[
+			[normalizePath(relativeTo.getAbsolutePath()),"."],
+			[normalizePath(µ.dirname)+"/","/morgas/"],
+			[normalizePath(gui.dirname)+"/","/morgas/gui/"]
+		];
+
+		var resouceMap=new Map();
 
 		var parser=(new SC.dependencyParser()).addSources(files)
 		.addModuleRegister(SC.morgasModuleRegister,µ.dirname).addModuleDependencies(SC.morgasModuleDependencies,µ.dirname)
 		.addModuleRegister(SC.morgasGuiModuleRegister,gui.dirname).addModuleDependencies(SC.morgasGuiModuleDependencies,gui.dirname);
 
+		var getFile=function(path)
+		{
+			if(resouceMap.has(path[0]))
+			{
+				path=path.slice();
+				path[0]=resouceMap.get(path[0]);
+			}
+			return relativeTo.clone().changePath(path.join("/"));
+		};
 
 		var restService=function(param)
 		{
-			if(param.path.length==0) return parser.parse();
+			if(param.path.length==0||param.path[0]=="") return parser.parse();
 
-			var file=relativeTo.clone();
-			file.changePath.apply(file,param.path);
+			var file=getFile(param.path);
+
 			return file.exists()
 			.then(function()
 			{
+				if("raw" in param.query)  return file.read({encoding:"UTF-8"});
+
 				return parser.parse()
 				.then(function(result)
 				{
@@ -46,20 +63,58 @@
 					.then(function(fileContents)
 					{
 						var concat=new Concat(true,param.path.join("/"),"\n/********************/\n");
-						for (var fileContent of fileContents)
+						for (var [name,data] of fileContents)
 						{
-							var name=fileContent[0];
-							var data=fileContent[1];
-							replaceDirs.forEach(p=>name=String.prototype.replace.apply(name,p));
+							let replaced=false;
+							for(let[filepath,replacement] of replaceDirs)
+							{
+								if(name.startsWith(filepath))
+								{
+									name=name.replace(filepath,replacement);
+									replaced=true;
+									break;
+								}
+							}
+							if(!replaced)
+							{
+								for(let[replacement,filepath] of resouceMap)
+								{
+									if(name.startsWith(filepath))
+									{
+										name=name.replace(filepath,replacement)+"?raw";
+										break;
+									}
+								}
+							}
 							concat.add(name,data);
 						}
 						return concat.content+"\n//# sourceMappingURL=data:application/json;charset=utf-8;base64," + new Buffer(concat.sourceMap).toString("base64")
 					});
 				})
 				//.then(files=>files.join("\n/********************/\n"));
-			},()=>param.status=404)
+			},()=>
+			{
+				param.status=404;
+				return param.path+" NOT FOUND";
+			});
 		};
-		restService.dependencyParser=parser;
+
+		let resourceCounter=0;
+		restService.addResource=function(moduleRegister,moduleDependencies,directory,name)
+		{
+			if(!directory) throw "no directory";
+			directory=SC.File.stringToFile(directory);
+			if(moduleRegister) µ.addModuleRegister(moduleRegister,directory.getAbsolutePath());
+			parser.addModuleDependencies(moduleDependencies,directory);
+
+			if(!name) name="resource_"+(resourceCounter++);
+			if(resouceMap.has(name))
+			{
+				µ.logger.warn(`resource name "${name}" already in use`);
+				name+="_"+(resourceCounter++);
+			}
+			resouceMap.set(name,normalizePath(directory.getAbsolutePath()));
+		};
 		return restService;
 	}
 
