@@ -1,6 +1,7 @@
 var µ=require("Morgas");
 
 var http=require("http");
+var URL=require("url");
 
 var SC=µ.shortcut({
 	File:"File",
@@ -25,8 +26,7 @@ var handleRequest=function(request,response)
 	}
 	else
 	{
-		//TODO use Url object/class
-		var requestPath=request.url.slice(1).split("/");
+		var requestPath=URL.parse(request.url.slice(1)).pathname.split("/");
 		if(requestPath.length==1||requestPath[1]=="")
 		{
 			var newUrl="http://"+request.headers['host']+"/"+requestPath[0]+"/index.html";
