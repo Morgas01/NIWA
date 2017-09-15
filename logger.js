@@ -1,4 +1,4 @@
-var µ=require("Morgas");
+let µ=require("Morgas");
 (function(µ,SMOD,GMOD,HMOD,SC){
 
 	SC=SC({
@@ -7,16 +7,16 @@ var µ=require("Morgas");
 		es:"errorSerializer"
 	});
 
-	var bunyan=require("bunyan");
+	let bunyan=require("bunyan");
 
-	var logFolder=new SC.File(__dirname).changePath("logs");
-	var loggers=new Map();
+	let logFolder=new SC.File(__dirname).changePath("logs");
+	let loggers=new Map();
 
 	module.exports=function(name)
 	{
 		if(!loggers.has(name))
 		{
-			var logFile=logFolder.clone().changePath(name+".log");
+			let logFile=logFolder.clone().changePath(name+".log");
 			SC.fileUtils.enshureDirSync(logFile.clone().changePath(".."));
 			loggers.set(name,bunyan.createLogger({
 				name:name,
@@ -45,7 +45,7 @@ var µ=require("Morgas");
 			{
 				msg=[{error:msg[0].error,warning:msg[0]},msg[0].message];
 			}
-			var fn;
+			let fn;
 			switch(level)
 			{
 				case µ.logger.LEVEL.error:

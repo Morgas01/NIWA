@@ -1,9 +1,9 @@
-var µ=require("Morgas");
+let µ=require("Morgas");
 
-var http=require("http");
-var URL=require("url");
+let http=require("http");
+let URL=require("url");
 
-var SC=µ.shortcut({
+let SC=µ.shortcut({
 	File:"File",
 	fileUtils:"File.util",
 	adopt:"adopt",
@@ -11,13 +11,13 @@ var SC=µ.shortcut({
 	gui:require.bind(null,"MorgasGui")
 });
 
-var LOG=require("./logger");
-var logger=LOG.setCoreLogger(LOG("main"));
-var accessLogger=LOG("access");
-var config=require("./config");
-var backGarden=require("./lib/backGarden");
+let LOG=require("./logger");
+let logger=LOG.setCoreLogger(LOG("main"));
+let accessLogger=LOG("access");
+let config=require("./config");
+let backyard=require("./lib/backyard");
 
-var handleRequest=function(request,response)
+let handleRequest=function(request,response)
 {
 	accessLogger.info({url:request.url});
 	if(request.url==="/")
@@ -26,10 +26,10 @@ var handleRequest=function(request,response)
 	}
 	else
 	{
-		var requestPath=URL.parse(request.url.slice(1)).pathname.split("/");
+		let requestPath=URL.parse(request.url.slice(1)).pathname.split("/");
 		if(requestPath.length==1||requestPath[1]=="")
 		{
-			var newUrl="http://"+request.headers['host']+"/"+requestPath[0]+"/index.html";
+			let newUrl="http://"+request.headers['host']+"/"+requestPath[0]+"/index.html";
 			logger.info(`redirect ${request.url} to ${newUrl}`);
 			SC.fillResponse(response,http.STATUS_CODES[302]+ '. Redirecting to ' + requestPath[0]+"/index.html",{
 				'Location': newUrl
@@ -39,9 +39,9 @@ var handleRequest=function(request,response)
 		{// morgas sources
 			handleMorgasSources(request,response,requestPath);
 		}
-		else if(backGarden.has(requestPath[0]))
+		else if(backyard.has(requestPath[0]))
 		{//app
-			backGarden.handleRequest(requestPath[0],request,response,requestPath.slice(1));
+			backyard.handleRequest(requestPath[0],request,response,requestPath.slice(1));
 		}
 		else
 		{//unknown app
@@ -49,7 +49,7 @@ var handleRequest=function(request,response)
 		}
 	}
 };
-var handleMorgasSources=function(request,response,requestPath)
+let handleMorgasSources=function(request,response,requestPath)
 {
 	if(requestPath[1]=="gui")
 	{
@@ -75,7 +75,7 @@ var handleMorgasSources=function(request,response,requestPath)
 }
 
 logger.info(`starting server with port ${config.port}`);
-var server=http.createServer(handleRequest);
+let server=http.createServer(handleRequest);
 server.listen(config.port,function(e)
 {
 	if(e){
@@ -85,6 +85,6 @@ server.listen(config.port,function(e)
 	{
 		logger.info("server startet");
 
-		backGarden.initApps();
+		backyard.initApps();
 	}
 });

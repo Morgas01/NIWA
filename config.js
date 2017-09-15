@@ -5,9 +5,9 @@ require("Morgas");
 		adopt:"adopt"
 	});
 
-	var logger=require("./logger")("main");
+	let logger=require("./logger")("main");
 
-	var config=module.exports=SC.parse({
+	let config=module.exports=SC.parse({
 		port:{
 			names:["port","/p"],
 			type:"number",
