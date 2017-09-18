@@ -8,6 +8,7 @@ let SC=µ.shortcut({
 	fileUtils:"File.util",
 	adopt:"adopt",
 	fillResponse:require.bind(null,"./lib/fillResponse"),
+	mimeType:require.bind(null,"./util/mimeType"),
 	gui:require.bind(null,"MorgasGui")
 });
 
@@ -58,12 +59,12 @@ let handleMorgasSources=function(request,response,requestPath)
 			if(requestPath[3]=="theme")
 			{
 				//TODO pass theme components
-				SC.fillResponse(response,SC.gui.getTheme(requestPath.slice(4).join("/")),{"Content-Type":SC.fillResponse.getMimeType(".css")});
+				SC.fillResponse(response,SC.gui.getTheme(requestPath.slice(4).join("/")),{"Content-Type":SC.mimeType.get(".css")});
 			}
 			else
 			{
 				//TODO pass component's theme
-				SC.fillResponse(response,SC.gui.getComponentStyle(requestPath.slice(3).join("/")),{"Content-Type":SC.fillResponse.getMimeType(".css")});
+				SC.fillResponse(response,SC.gui.getComponentStyle(requestPath.slice(3).join("/")),{"Content-Type":SC.mimeType.get(".css")});
 			}
 		}
 		else
