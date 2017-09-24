@@ -16,7 +16,7 @@ let LOG=require("./logger");
 let logger=LOG.setCoreLogger(LOG("main"));
 let accessLogger=LOG("access");
 let config=require("./config");
-let backyard=require("./lib/backyard");
+let backGardener=require("./lib/backGardener");
 
 let handleRequest=function(request,response)
 {
@@ -40,11 +40,7 @@ let handleRequest=function(request,response)
 		{// morgas sources
 			handleMorgasSources(request,response,requestPath);
 		}
-		else if(backyard.has(requestPath[0]))
-		{//app
-			backyard.handleRequest(requestPath[0],request,response,requestPath.slice(1));
-		}
-		else
+		else if(!backGardener.handleRequest(requestPath[0],request,response,requestPath.slice(1)))
 		{//unknown app
 			SC.fillResponse(response,`no such app "${requestPath[0]}"`,null,501)
 		}
@@ -86,6 +82,6 @@ server.listen(config.port,function(e)
 	{
 		logger.info("server startet");
 
-		backyard.initApps();
+		backGardener.initApps();
 	}
 });
