@@ -41,10 +41,6 @@ let µ=require("Morgas");
 	{
 		µ.logger.out=function(level,msg)
 		{
-			if(msg.length==1&&msg[0]instanceof µ.Warning)
-			{
-				msg=[{error:msg[0].error,warning:msg[0]},msg[0].message];
-			}
 			let fn;
 			switch(level)
 			{

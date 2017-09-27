@@ -8,14 +8,27 @@
 		<link rel="stylesheet" href="css/index.less">
 
 		<script type="text/javascript" defer="defer" src="/morgas/Morgas.js"></script>
+		<script type="text/javascript" defer="defer" src="/morgas/Morgas.util.function.rescope.js"></script>
+		<script type="text/javascript" defer="defer" src="/morgas/Morgas.Promise.js"></script>
+		<script type="text/javascript" defer="defer" src="/morgas/Morgas.util.Request.js"></script>
+		<script type="text/javascript" defer="defer" src="/morgas/Morgas.util.object.adopt.js"></script>
+		<script type="text/javascript" defer="defer" src="/morgas/gui/actionize.js"></script>
+		<script type="text/javascript" defer="defer" src="/morgas/gui/dialog.js"></script>
+
+		<script type="text/javascript" defer="defer" src="js/index.js"></script>
 	</head>
 	<body>
-			<div>
-				<a target="main" href="apps.html">apps</a>
-				<a target="main" href="">config</a>
-				<a target="main" href="">users</a>
-				<a target="main" href="">servers</a>
-			</div>
+			<header id="control">
+				<a target="main" href="apps.html"><button>apps</button></a>
+				<a target="main" href=""><button disabled class="sessionCheck">config</button></a>
+				<a target="main" href="users.html"><button disabled class="sessionCheck">users</button></a>
+				<!--a target="main" href="">
+					<button disabled class="sessionCheck">servers</button>
+				</a-->
+				<div class="spacer"></div>
+				<button id="logIn">LogIn</button>
+				<button id="logOut" title="LogOut"></button>
+			</header>
 			<iframe name="main" src="apps.html"></iframe>
 	</body>
 </html>
