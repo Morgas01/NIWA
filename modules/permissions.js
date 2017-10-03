@@ -4,6 +4,8 @@
 
 	SC=SC({
 		util:"File.util",
+		ServiceResult:require.bind(null,"../util/ServiceResult"),
+		Session:require.bind(null,"./session")
 	});
 
 	let permissionsFile=new File(__dirname).changePath("../config/permissions.json");
@@ -30,6 +32,28 @@
 				}
 				return userPermissions;
 			});
+		},
+		check:async function(sessionToken,toCheck=[])
+		{
+			let session;
+			try
+			{
+				session=await SC.Session.get();
+			}
+			catch(e)
+			{
+				e=SC.ServiceResult.wrapError(e);
+				e.status=403;
+				throw e;
+			}
+			let username="";
+			if(session.user!=null) username=session.user.name;
+			let permissions= await module.exports.get(username);
+
+			if(!toCheck.every(p=>permissions.has(p)))
+			{
+				throw new SC.ServiceResult({data:"Forbidden",status:403});
+			}
 		}
 	};
 

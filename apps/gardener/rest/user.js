@@ -8,37 +8,24 @@
 			return worker.module("session","get",[param.data])
 			.then(function(session)
 			{
-				if(!session) return Promise.reject("no session");
 				if(session.user) return session.user.name;
 				return "";
 			});
 		},
-		logIn:function(param)
+		logIn:async function(param)
 		{
-			let sessionPromise=null;
-			if(param.token) sessionPromise=worker.module("session","get",[param.data.token]);
-			else sessionPromise=worker.module("session","create");
-
-			return sessionPromise.then(function(session)
-			{
-				if(session.user)
-				{
-					return Promise.reject("logged in");
-				}
-				else
-				{
-					return worker.module("user","logIn",[session.token,param.data.username,param.data.password])
-					.then(function()
-					{
-						return session.token;
-					});
-				}
-			});
+			if(!param.data.token) param.data.token=(await worker.module("session","create")).token;
+			await worker.module("user","logIn",[param.data.token,param.data.username,param.data.password]);
+			return param.data.token;
 		},
 		logOut:function(param)
 		{
 			return worker.module("user","logOut",[param.data]);
+		},
+		list:function(param)
+		{
+			return worker.module("user","list",[param.data]);
 		}
-	}
+	};
 
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);

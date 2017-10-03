@@ -4,7 +4,7 @@
 	var Concat=require("concat-with-sourcemaps");
 
 	SC=SC({
-		dependencyParser:require.bind(null,"Morgas/dependencyParser"),
+		dependencyParser:require.bind(null,"Morgas/lib/dependencyParser"),
 		morgasModuleRegister:"Morgas.ModuleRegister",
 		morgasModuleDependencies:"Morgas.ModuleDependencies",
 		morgasGuiModuleRegister:"Morgas.gui.ModuleRegister",
@@ -56,6 +56,12 @@
 					for(let key in parser.moduleDependencies) rtn.providedDependencies[key]=parser.moduleDependencies[key];
 					rtn.providedFileDependencies={};
 					for(let key in parser.fileDependencies) rtn.providedFileDependencies[key]=parser.fileDependencies[key];
+					if(param.query.file)
+					{
+						var resolver=new SC.DependencyResolver(rtn.fileDependencies);
+						let files=[].concat(param.query.file).map(f=>normalizePath(getFile(f.split("/")).getAbsolutePath()));
+						rtn.order=resolver.resolve([morgasJsFile,...files]);
+					}
 					return rtn;
 				});
 			}

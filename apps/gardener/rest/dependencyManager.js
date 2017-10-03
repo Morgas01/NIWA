@@ -1,0 +1,1 @@
+module.exports=µ.getModule("dependencyManager")(["js"],"js");
