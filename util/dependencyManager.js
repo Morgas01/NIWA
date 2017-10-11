@@ -60,7 +60,8 @@
 					{
 						var resolver=new SC.DependencyResolver(rtn.fileDependencies);
 						let files=[].concat(param.query.file).map(f=>normalizePath(getFile(f.split("/")).getAbsolutePath()));
-						rtn.order=resolver.resolve([morgasJsFile,...files]);
+						rtn.order=resolver.resolve([...files]);
+						rtn.order.unshift(morgasJsFile);
 					}
 					return rtn;
 				});
@@ -77,7 +78,8 @@
 				.then(function(result)
 				{
 					var resolver=new SC.DependencyResolver(result.fileDependencies);
-					var files=resolver.resolve([morgasJsFile,normalizePath(file.getAbsolutePath())]);
+					var files=resolver.resolve([normalizePath(file.getAbsolutePath())]);
+					files.unshift(morgasJsFile);
 					return Promise.all(files.map(f=>SC.File.stringToFile(f).read().then(data=>[f,data])))
 					.then(function(fileContents)
 					{
