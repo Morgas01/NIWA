@@ -65,7 +65,7 @@
 	<tr>
 		<td>Name</td>
 		<td>
-			<input name="name" type="text">
+			<input name="name" type="text" autofocus>
 		</td>
 	</tr>
 	<tr>

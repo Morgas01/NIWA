@@ -12,23 +12,29 @@
 	})
 	.then(function(data)
 	{
-		let config=new SC.TableConfig(["name"],{radioName:"users"});
+		let config=new SC.TableConfig([{name:"name",fn:(e,n)=>e.textContent=n}],{radioName:"users"});
 		let table=config.getTable(data);
 		document.body.appendChild(table);
 	},
 	function(error)
 	{
-		if(error.status===401)
+		switch(error.status)
 		{
-			alert("not logged in");
-			let retry=document.createElement("a");
-			retry.href=".";
-			retry.textContent="retry";
-			document.body.appendChild(retry);
-			return;
+			case 401:
+				alert("not logged in");
+				break;
+			case 403:
+				alert("no permission");
+				break;
+			default :
+				µ.logger.error(error);
+				alert("error ocurred");
+				return;
 		}
-		µ.logger.error(error);
-		alert("error ocurred");
+		let retry=document.createElement("a");
+		retry.href="users.html";
+		retry.textContent="retry";
+		document.body.appendChild(retry);
 	})
 
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);

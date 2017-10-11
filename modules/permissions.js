@@ -35,24 +35,14 @@
 		},
 		check:async function(sessionToken,toCheck=[])
 		{
-			let session;
-			try
-			{
-				session=await SC.Session.get();
-			}
-			catch(e)
-			{
-				e=SC.ServiceResult.wrapError(e);
-				e.status=403;
-				throw e;
-			}
+			let session=await SC.Session.get(sessionToken);
 			let username="";
 			if(session.user!=null) username=session.user.name;
-			let permissions= await module.exports.get(username);
+			let permissions=await module.exports.get(username);
 
 			if(!toCheck.every(p=>permissions.has(p)))
 			{
-				throw new SC.ServiceResult({data:"Forbidden",status:403});
+				throw new SC.ServiceResult({data:"forbidden",status:403});
 			}
 		}
 	};

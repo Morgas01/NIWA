@@ -4,15 +4,26 @@
 @import "style/dialog";
 
 
-@import "variables";
-
-.whole-page();
-
+html,body {
+	width:100%;
+	height: 100%;
+	margin: 0;
+}
 body {
 	display: flex;
 	flex-direction: column;
+	padding: 1ex;
+	box-sizing:border-box;
 }
 iframe {
 	flex-grow: 1;
 	border: 0 none;
+}
+header {
+	display:flex;
+	padding-bottom:1ex;
+	border-bottom: 1px solid;
+}
+#logOut:empty,#logOut:not(:empty)+ button {
+	display:none;
 }

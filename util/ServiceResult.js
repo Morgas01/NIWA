@@ -41,6 +41,20 @@
 		return result;
 	};
 
+	/**
+	 * if data is similar to ServiceResult structure, create a new instance.
+	 * designed for Promise.catch()
+	 */
+	ServiceResult.parse=function(data)
+	{
+		if("data" in data && "status" in data)
+		{
+			data=new ServiceResult(data);
+			if(data.status==200) data.status=500;
+		}
+		throw data;
+	}
+
 	SMOD("ServiceResult",ServiceResult);
 	module.exports=ServiceResult;
 
