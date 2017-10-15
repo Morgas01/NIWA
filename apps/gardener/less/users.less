@@ -2,3 +2,22 @@
 
 @import "structure/TableConfig.Select";
 @import "style/TableConfig.Select";
+
+.TableConfig {
+	border-collapse:collapse;
+
+	[data-type="USER"] + [data-type="ROLE"] {
+		border-top: 1ex solid;
+	}
+	[draggable]:hover {
+		border: 1px dashed;
+		cursor:grab
+	}
+
+	tr {
+		.zebra();
+	}
+	td {
+		padding:1ex;
+	}
+}

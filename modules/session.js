@@ -54,6 +54,11 @@
 			}
 			throw new SC.ServiceResult({data:"no session",status:400});
 		},
+		getOrCreate:function(token)
+		{
+			if(sessionMap.has(token)) return module.exports.get(token);
+			else return module.exports.create();
+		},
 		"delete":async function(token)
 		{
 			let entry=sessionMap.get(token);

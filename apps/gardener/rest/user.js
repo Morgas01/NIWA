@@ -1,6 +1,8 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
 
-	//SC=SC({});
+	SC=SC({
+		ServiceResult:"ServiceResult"
+	});
 
 	module.exports={
 		getCurrentName:function(param)
@@ -9,12 +11,12 @@
 			.then(function(session)
 			{
 				if(session.user) return session.user.name;
-				return "";
+				return new SC.ServiceResult({data:"not logged in",status:400});
 			});
 		},
 		logIn:async function(param)
 		{
-			if(!param.data.token) param.data.token=(await worker.module("session","create")).token;
+			param.data.token=(await worker.module("session","getOrCreate",[param.data.token])).token;
 			await worker.module("user","logIn",[param.data.token,param.data.username,param.data.password]);
 			return param.data.token;
 		},
@@ -22,9 +24,9 @@
 		{
 			return worker.module("user","logOut",[param.data]);
 		},
-		list:function(param)
+		config:function(param)
 		{
-			return worker.module("user","list",[param.data]);
+			return worker.module("permissions","getAll",[param.data]);
 		}
 	};
 

@@ -82,6 +82,10 @@
 					return userFile.write(JSON.stringify(users));
 				}
 			})
+			.then(function()
+			{
+				return SC.Permissions.addUsers(sessionToken,[{name:username}]);
+			})
 			//hide return value
 			.then(µ.constantFunctions.n);
 
@@ -90,7 +94,7 @@
 		{
 			return SC.Permissions.check(sessionToken,["deleteUser"])
 			.then(()=>userFile.exists())
-			.then(function()
+			.then(()=>
 			{
 				return userFile.read()
 				.then(JSON.parse)
@@ -100,22 +104,12 @@
 					{
 						delete users[username];
 						return userFile.write(JSON.stringify(users))
+						.then(()=>SC.Permissions.deleteUsers(sessionToken,[username]))
 						.then(µ.constantFunctions.n);
 					}
 				});
 			},
 			µ.constantFunctions.n);
-		},
-		list:function(sessionToken)
-		{
-			return SC.Permissions.check(sessionToken,["listUser"])
-			.then(()=>userFile.exists())
-			.then(userFile.read)
-			.then(JSON.parse)
-			.then(function(users)
-			{
-				return Object.keys(users);
-			});
 		}
 	};
 

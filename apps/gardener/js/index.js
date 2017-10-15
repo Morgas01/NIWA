@@ -26,32 +26,25 @@
 		}
 		else
 		{
-			userPromise=Promise.resolve();
+			userPromise=Promise.reject();
 		}
-		userPromise.catch(function(error)
+		userPromise.then(function(username)
 		{
-			sessionStorage.removeItem("NIWA_SESSION");
-		})
-		.then(function(username)
+			for(let button of sessionCheckButtons)
+			{
+				button.disabled=false;
+			}
+			control.classList.add("loggedIn");
+			logOutBtn.textContent="\uD83D\uDEAB "+username;
+		},
+		function()
 		{
-			if(username)
+			for(let button of sessionCheckButtons)
 			{
-				for(let button of sessionCheckButtons)
-				{
-					button.disabled=false;
-				}
-				control.classList.add("loggedIn");
-				logOutBtn.textContent="\uD83D\uDEAB "+username;
+				button.disabled=true;
 			}
-			else
-			{
-				for(let button of sessionCheckButtons)
-				{
-					button.disabled=true;
-				}
-				control.classList.remove("loggedIn");
-				logOutBtn.textContent="";
-			}
+			control.classList.remove("loggedIn");
+			logOutBtn.textContent="";
 		});
 	};
 
@@ -94,6 +87,18 @@
 						sessionStorage.setItem("NIWA_SESSION",token);
 						updateSessionDisplay();
 						dialog.close();
+					},
+					function(error)
+					{
+						if(error.status<500)
+						{
+							sessionStorage.setItem("NIWA_SESSION",error.response);
+							for(let input of dialog.querySelectorAll("input"))
+							{
+								input.setCustomValidity("invalid");
+							}
+						}
+						µ.logger.error(error);
 					});
 				},
 			}
