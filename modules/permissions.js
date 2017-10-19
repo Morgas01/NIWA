@@ -13,7 +13,7 @@
 	let readFile=function(ignoreError)
 	{
 		return permissionsFile.exists()
-		.then(permissionsFile.read,ignoreError?"{}":undefined)
+		.then(permissionsFile.read,()=>ignoreError?"{}":undefined)
 		.then(JSON.parse);
 	};
 	let saveToFile=function(data)
@@ -22,7 +22,7 @@
 		.then(()=>permissionsFile.write(JSON.stringify(data,null,"\t")));
 	};
 
-	let permissions={
+	let permissionsModule={
 		get:function(username)
 		{
 			return readFile()
@@ -43,12 +43,14 @@
 				return userPermissions;
 			});
 		},
-		check:async function(sessionToken,toCheck=[])
+		check:async function(sessionToken,toCheck)
 		{
+			toCheck=toCheck||[];
+
 			let session=await SC.Session.get(sessionToken);
 			let username="";
 			if(session.user!=null) username=session.user.name;
-			let userPermissions=await permissions.get(username);
+			let userPermissions=await permissionsModule.get(username);
 
 			if(!toCheck.every(p=>userPermissions.has(p)))
 			{
@@ -62,85 +64,107 @@
 		}
 	};
 
+	let getReferences=function(permissionConfig,type,name)
+	{
+		let rtn=[];
+		for( let key in permissionConfig[type])
+		{
+			if(permissionConfig[type][key].roles.includes(name))
+			{
+				rtn.push(key);
+			}
+		}
+		return rtn;
+	}
+
 	for(let type of ["User","Role"])
 	{
 		let key=type.toLowerCase()+"s";
 
-		permissions["add"+type+"s"]=function(sessionToken,datas)
+		permissionsModule["add"+type]=function(sessionToken,name,roles,permissions)
 		{
-			return permissions.check(sessionToken,["add"+type])
+			roles=roles||[];
+			permissions=permissions||[];
+
+			return permissionsModule.check(sessionToken,["add"+type])
 			.then(()=>readFile(true))
 			.then(permissionConfig=>
 			{
-				for(let data of datas)
+				if (name in permissionConfig[key])
 				{
-					if(!data.roles) data.roles=[];
-					if(!data.permissions) data.permissions=[];
-
-					if (data.name in permissionConfig[key])
-					{
-						throw new SC.ServiceResult({data:type+" "+data.name+" exists",status:400});
-					}
-					else if(data.roles&&!data.roles.every(r=>r in permissionConfig.roles))
-					{
-						throw new SC.ServiceResult({data:"role of "+type+" "+data.name+" does not exists",status:400});
-					}
-					permissionConfig[key][data.name]={
-						roles:data.roles,
-						permissions:data.permissions
-					};
+					throw new SC.ServiceResult({data:type+" "+name+" exists",status:400});
 				}
+				else if(!roles.every(r=>r in permissionConfig.roles))
+				{
+					throw new SC.ServiceResult({data:"role of "+type+" "+name+" does not exists",status:400});
+				}
+				permissionConfig[key][name]={
+					roles:roles,
+					permissions:permissions
+				};
 				return saveToFile(permissionConfig);
 			});
 		};
 
-		permissions["set"+type+"s"]=function(sessionToken,datas)
+		permissionsModule["set"+type]=function(sessionToken,name,roles,permissions)
 		{
-			return permissions.check(sessionToken,["set"+type])
+			roles=roles||[];
+			permissions=permissions||[];
+
+			return permissionsModule.check(sessionToken,["set"+type])
 			.then(()=>readFile(false))
 			.then(permissionConfig=>
 			{
-				for(let data of datas)
+				if (!(name in permissionConfig[key]))
 				{
-					if(!data.roles) data.roles=[];
-					if(!data.permissions) data.permissions=[];
-
-					if (!(data.name in permissionConfig[key]))
-					{
-						throw new SC.ServiceResult({data:type+" "+data.name+" does not exists",status:400});
-					}
-					else if(data.roles&&!data.roles.every(r=>r in permissionConfig.roles))
-					{
-						throw new SC.ServiceResult({data:"role of "+type+" "+data.name+" does not exists",status:400});
-					}
-					permissionConfig[key][data.name]={
-						roles:data.roles,
-						permissions:data.permissions
-					};
+					throw new SC.ServiceResult({data:type+" "+name+" does not exists",status:400});
 				}
+				else if(!roles.every(r=>r in permissionConfig.roles))
+				{
+					throw new SC.ServiceResult({data:"role of "+type+" "+name+" does not exists",status:400});
+				}
+				permissionConfig[key][name]={
+					roles:roles,
+					permissions:permissions
+				};
 				return saveToFile(permissionConfig);
 			});
 		};
 
-		permissions["delete"+type+"s"]=function(sessionToken,names)
+		permissionsModule["delete"+type]=function(sessionToken,name)
 		{
-			return permissions.check(sessionToken,["delete"+type])
+			return permissionsModule.check(sessionToken,["delete"+type])
 			.then(()=>readFile(false))
 			.then(permissionConfig=>
 			{
-				for(let name of names)
+				if (!(name in permissionConfig[key]))
 				{
-					if (!(name in permissionConfig[key]))
-					{
-						throw new SC.ServiceResult({data:type+" "+name+" does not exists",status:400});
-					}
-
-					delete permissionConfig[key][name];
+					throw new SC.ServiceResult({data:type+" "+name+" does not exists",status:400});
 				}
+				let referenceUsers=getReferences(permissionConfig,"users",name);
+				let referenceRoles=getReferences(permissionConfig,"roles",name);
+
+					let message="";
+				if(referenceUsers.length>0)
+				{
+					message+="User"+(referenceUsers.length>1?"s ":" ")+referenceUsers+" ";
+				}
+				if(referenceRoles.length>0)
+				{
+					if(message) message+="and ";
+					message+="Role"+(referenceRoles.length>1?"s ":" ")+referenceRoles+" ";
+				}
+				if(message)
+				{
+					message+="hold references to "+type+" "+name;
+					throw new SC.ServiceResult({data:message,status:400});
+				}
+
+				delete permissionConfig[key][name];
 				return saveToFile(permissionConfig);
 			});
 		};
 	}
 
-	module.exports=permissions;
+	module.exports=permissionsModule;
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);

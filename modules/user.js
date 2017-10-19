@@ -27,6 +27,8 @@
 	module.exports={
 		logIn:function(sessionToken,username,password="")
 		{
+			password=password||""
+
 			return checkNoUser(sessionToken)
 			.then(function(session)
 			{
@@ -54,8 +56,10 @@
 				session.user=null;
 			});
 		},
-		register:function(sessionToken,username,password="")
+		register:function(sessionToken,username,password)
 		{
+			password=password||"";
+
 			if(!username) return Promise.reject(new SC.ServiceResult({data:"no username",status:400}));
 
 			return checkUser(sessionToken)

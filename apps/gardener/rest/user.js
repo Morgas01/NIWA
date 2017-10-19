@@ -26,8 +26,64 @@
 		},
 		config:function(param)
 		{
-			return worker.module("permissions","getAll",[param.data]);
-		}
+			let key=null;
+			if(param.path[0]) key=param.path[0][0].toUpperCase()+param.path[0].slice(1);
+			switch(param.method)
+			{
+				case "GET":
+					return worker.module("permissions","getAll",[param.query.session]);
+				case "POST":
+					switch(param.path[0])
+					{
+						case "user":
+						return worker.module("users","register",[
+							param.data.session,
+							param.data.name,
+							param.data.password
+						])
+						.then(()=>worker.module("permissions","addUser",[
+							param.data.session,
+							param.data.name,
+							param.data.roles,
+							param.data.permissions
+						]));
+						case "role":
+						return worker.module("permissions","addRole",[
+							param.data.session,
+							param.data.name,
+							param.data.roles,
+							param.data.permissions
+						]);
+					}
+					break;
+				case "PUT":
+					switch(param.path[0])
+					{
+						case "user":
+						case "role":
+						return worker.module("permissions","set"+key,[
+							param.data.session,
+							param.data.name,
+							param.data.roles,
+							param.data.permissions
+						]);
+					}
+					break;
+				case "DELETE":
+					switch(param.path[0])
+					{
+						case "user":
+						case "role":
+						return worker.module("permissions","delete"+key,[
+							param.data.session,
+							param.data.name
+						]);
+					}
+					break;
+			}
+			return new SC.ServiceResult({data:"unknown config context "+param.path[0],status:400});
+		},
+
 	};
 
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);

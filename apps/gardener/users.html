@@ -7,10 +7,12 @@
 		<script type="text/javascript" defer="defer" src="rest/dependencyManager/users.js"></script>
 	</head>
 	<body>
-			<header>
-				<button disabled data-action="add">Add User</button>
-				<button disabled data-action="reset" data-selected>Reset Password</button>
-				<button disabled data-action="delete" data-selected>Delete User</button>
-			</header>
+			<fieldset disabled id="actions">
+				<button disabled data-action="addUser" accesskey="u">Add User</button>
+				<button disabled data-action="setPassword" accesskey="p">set Password</button>
+				<button disabled data-action="addRole" accesskey="r">Add Role</button>
+				<button disabled data-action="edit" accesskey="e">Edit</button>
+				<button disabled data-action="delete" accesskey="d">Delete</button>
+			</fieldset>
 	</body>
 </html>

@@ -47,7 +47,7 @@
 	 */
 	ServiceResult.parse=function(data)
 	{
-		if("data" in data && "status" in data)
+		if(typeof data==="object"&&data!==null&&"data" in data && "status" in data)
 		{
 			data=new ServiceResult(data);
 			if(data.status==200) data.status=500;

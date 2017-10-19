@@ -2,22 +2,34 @@
 
 @import "structure/TableConfig.Select";
 @import "style/TableConfig.Select";
+@import "structure/dialog";
+@import "style/dialog";
 
+html,body{
+	padding:0;
+	margin:0;
+}
+
+#actions {
+	border:0 none;
+	padding:1ex 0 0 0;
+	button {
+		.tooltip(@attr:accesskey,@content:~'"Accesskey "attr(accesskey)',@direction:left,@distance:0,@additions:{
+			font-size:.8rem;
+		});
+		.tooltip-fadeIn(@delay:.5s,@time:@fadeTime*2);
+	}
+}
 .TableConfig {
-	border-collapse:collapse;
-
+	width:100%;
 	[data-type="USER"] + [data-type="ROLE"] {
 		border-top: 1ex solid;
 	}
-	[draggable]:hover {
-		border: 1px dashed;
-		cursor:grab
-	}
-
-	tr {
-		.zebra();
-	}
-	td {
-		padding:1ex;
-	}
+}
+:invalid {
+    box-shadow: 0 0 1ex .25ex red;
+}
+.errorMessage {
+	background-color:red;
+	color:white;
 }

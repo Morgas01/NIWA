@@ -39,7 +39,14 @@
 		},
 		effectivePermissions:function()
 		{
-			return this.permissions.concat(...this.roles.map(r=>r.effectivePermissions()));
+			let roles=new Set(this.roles)
+			let permissions=new Set(this.permissions)
+			for(let role of roles)
+			{
+				role.permissions.forEach(p=>permissions.add(p));
+				role.roles.forEach(r=>roles.add(r));
+			}
+			return Array.from(permissions.values()).sort();
 		}
 	});
 
@@ -62,11 +69,11 @@
 			users:Object.keys(data.users)
 			.map(name=>new UserRole(UserRole.Types.USER,name,data.users[name]))
 			.sort(sort),
-			roles:[..roleMap.values()].sort(sort)
+			roles:[...roleMap.values()].sort(sort)
 		}
 
 		let todo=rtn.users.concat(rtn.roles);
-		for (let userRole of rtn)
+		for (let userRole of todo)
 		{
 			userRole.original.roles=userRole.original.roles.map(roleMap.get.bind(roleMap));
 			userRole.roles=userRole.original.roles.slice();
