@@ -52,7 +52,16 @@
 			data=new ServiceResult(data);
 			if(data.status==200) data.status=500;
 		}
-		throw data;
+		return data;
+	}
+
+	/**
+	 * if data is similar to ServiceResult structure, create a new instance.
+	 * designed for Promise.catch()
+	 */
+	ServiceResult.parseThrow=function(data)
+	{
+		throw ServiceResult.parse(data);
 	}
 
 	SMOD("ServiceResult",ServiceResult);

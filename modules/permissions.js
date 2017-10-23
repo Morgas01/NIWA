@@ -61,6 +61,54 @@
 		{
 			return module.exports.check(sessionToken,["readPermissions"])
 			.then(()=>readFile());
+		},
+		deleteUser:function(sessionToken,name)
+		{
+			return permissionsModule.check(sessionToken,["deleteUser"])
+			.then(()=>readFile(false))
+			.then(permissionConfig=>
+			{
+				if (!(name in permissionConfig.users))
+				{
+					return new SC.ServiceResult({status:205});
+				}
+
+				delete permissionConfig.users[name];
+				return saveToFile(permissionConfig);
+			});
+		},
+		deleteRole:function(sessionToken,name)
+		{
+			return permissionsModule.check(sessionToken,["deleteRole"])
+			.then(()=>readFile(false))
+			.then(permissionConfig=>
+			{
+				if (!(name in permissionConfig.roles))
+				{
+					return new SC.ServiceResult({status:205});
+				}
+				let referenceUsers=getReferences(permissionConfig,"users",name);
+				let referenceRoles=getReferences(permissionConfig,"roles",name);
+
+				let message="";
+				if(referenceUsers.length>0)
+				{
+					message+="User"+(referenceUsers.length>1?"s ":" ")+referenceUsers+" ";
+				}
+				if(referenceRoles.length>0)
+				{
+					if(message) message+="and ";
+					message+="Role"+(referenceRoles.length>1?"s ":" ")+referenceRoles+" ";
+				}
+				if(message)
+				{
+					message+="hold references to Role "+name;
+					throw new SC.ServiceResult({data:message,status:400});
+				}
+
+				delete permissionConfig.roles[name];
+				return saveToFile(permissionConfig);
+			});
 		}
 	};
 
@@ -127,40 +175,6 @@
 					roles:roles,
 					permissions:permissions
 				};
-				return saveToFile(permissionConfig);
-			});
-		};
-
-		permissionsModule["delete"+type]=function(sessionToken,name)
-		{
-			return permissionsModule.check(sessionToken,["delete"+type])
-			.then(()=>readFile(false))
-			.then(permissionConfig=>
-			{
-				if (!(name in permissionConfig[key]))
-				{
-					throw new SC.ServiceResult({data:type+" "+name+" does not exists",status:400});
-				}
-				let referenceUsers=getReferences(permissionConfig,"users",name);
-				let referenceRoles=getReferences(permissionConfig,"roles",name);
-
-					let message="";
-				if(referenceUsers.length>0)
-				{
-					message+="User"+(referenceUsers.length>1?"s ":" ")+referenceUsers+" ";
-				}
-				if(referenceRoles.length>0)
-				{
-					if(message) message+="and ";
-					message+="Role"+(referenceRoles.length>1?"s ":" ")+referenceRoles+" ";
-				}
-				if(message)
-				{
-					message+="hold references to "+type+" "+name;
-					throw new SC.ServiceResult({data:message,status:400});
-				}
-
-				delete permissionConfig[key][name];
 				return saveToFile(permissionConfig);
 			});
 		};

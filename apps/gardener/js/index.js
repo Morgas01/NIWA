@@ -3,7 +3,7 @@
 	let request=GMOD("request");
 
 	SC=SC({
-		dlg:"gui.dialog"
+		dlg:"gui.Dialog.Input"
 	});
 
 	let control=document.getElementById("control");
@@ -52,13 +52,14 @@
 
 	logInBtn.addEventListener("click",function()
 	{
-		SC.dlg(
+		new SC.dlg(
 `
+<input type="hidden" name="token" value="${sessionStorage.getItem('NIWA_SESSION')}">
 <table>
 	<tr>
 		<td>Name</td>
 		<td>
-			<input name="name" type="text" autofocus>
+			<input name="username" type="text" autofocus>
 		</td>
 	</tr>
 	<tr>
@@ -68,37 +69,29 @@
 		</td>
 	</tr>
 </table>
-<button data-action="ok">OK</button><button data-action="close">Cancel</button>
 `
 		,{
 			actions:{
-				ok:function(event,target,dialog)
+				OK:function(values,target,dialog)
 				{
-					request({
+					return request({
 						url:"rest/user/logIn",
-						data:JSON.stringify({
-							token:sessionStorage.getItem("NIWA_SESSION"),
-							username:dialog.querySelector("[name=name]").value,
-							password:dialog.querySelector("[name=password]").value
-						})
+						data:JSON.stringify(values)
 					})
 					.then(function(token)
 					{
 						sessionStorage.setItem("NIWA_SESSION",token);
 						updateSessionDisplay();
-						dialog.close();
 					},
-					function(error)
+					error=>
 					{
 						if(error.status<500)
 						{
 							sessionStorage.setItem("NIWA_SESSION",error.response);
-							for(let input of dialog.querySelectorAll("input"))
-							{
-								input.setCustomValidity("invalid");
-							}
+							for(let input of this.content.querySelectorAll("[name]")) input.setCustomValidity("invalid");
 						}
 						µ.logger.error(error);
+						return Promise.reject();
 					});
 				},
 			}
@@ -113,7 +106,14 @@
 				url:"rest/user/logOut",
 				data:JSON.stringify(sessionToken)
 			})
-			.then(updateSessionDisplay);
+			.catch(request.allowedStatuses([205]))
+			.then(
+			updateSessionDisplay,
+			function(error)
+			{
+				µ.logger.error(error);
+				alert("error occurred\n"+error.message);
+			});
 		}
 	});
 

@@ -7,23 +7,13 @@
 	let sort=new Intl.Collator(navigator.languages,{sensitivity:"base"}).compare
 
 	let UserRole=µ.Class({
-		constructor:function(type,name,original)
+		constructor:function(type,name,{roles=[],permissions=[],noPermissions=false}={})
 		{
 			this.type=type;
 			this.name=name;
-			this.original=original;
-
-			if(!original) original={roles:[],permissions:[]};
-			this.roles=original.roles.slice();
-			this.permissions=original.permissions.slice();
-		},
-		hasChanges:function()
-		{
-			return !this.original
-			||
-			!SC.equal(this.roles,this.original.roles)
-			||
-			!SC.equal(this.permissions,this.original.permissions);
+			this.roles=roles;
+			this.permissions=permissions;
+			this.noPermissions=noPermissions;
 		},
 		toString:function()
 		{
@@ -72,11 +62,11 @@
 			roles:[...roleMap.values()].sort(sort)
 		}
 
+		let getRole=roleMap.get.bind(roleMap);
 		let todo=rtn.users.concat(rtn.roles);
 		for (let userRole of todo)
 		{
-			userRole.original.roles=userRole.original.roles.map(roleMap.get.bind(roleMap));
-			userRole.roles=userRole.original.roles.slice();
+			userRole.roles=userRole.roles.map(getRole);
 		}
 
 		return rtn;

@@ -54,6 +54,11 @@
 			.then(function(session)
 			{
 				session.user=null;
+			},
+			function(serviceResult)
+			{
+				serviceResult.status=205;
+				return serviceResult;
 			});
 		},
 		register:function(sessionToken,username,password)
@@ -88,7 +93,7 @@
 			})
 			.then(function()
 			{
-				return SC.Permissions.addUsers(sessionToken,[{name:username}]);
+				return SC.Permissions.addUser(sessionToken,username);
 			})
 			//hide return value
 			.then(µ.constantFunctions.n);
@@ -111,9 +116,21 @@
 						.then(()=>SC.Permissions.deleteUsers(sessionToken,[username]))
 						.then(µ.constantFunctions.n);
 					}
+					return new SC.ServiceResult({status:205});
 				});
 			},
 			µ.constantFunctions.n);
+		},
+		list:function(sessionToken)
+		{
+			return SC.Permissions.check(sessionToken,["readPermissions"])
+			.then(()=>userFile.exists())
+			.then(userFile.read)
+			.then(JSON.parse)
+			.then(function(users)
+			{
+				return Object.keys(users);
+			});
 		}
 	};
 
