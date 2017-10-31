@@ -14,9 +14,11 @@ html,body {
 #actions {
 	border:0 none;
 	padding:1ex 0 0 0;
+	margin:0;
 	button {
-		.tooltip(@attr:accesskey,@content:~'"Accesskey "attr(accesskey)',@direction:left,@distance:0,@additions:{
+		.tooltip(@attr:accesskey,@content:~'"accesskey "attr(accesskey)',@direction:left,@distance:0,@additions:{
 			font-size:.8rem;
+			text-transform:capitalize;
 		});
 		.tooltip-fadeIn(@delay:.5s,@time:@fadeTime*2);
 	}

@@ -132,10 +132,11 @@
 
 		let reloadTable=function()
 		{
-			for(let entry of userRoleTable.data.slice())
+			/*for(let entry of userRoleTable.data.slice())
 			{
 				userRoleTable.remove(entry);
-			}
+			}*/
+			userRoleTable.clear();
 			request.json("rest/user/config?session="+sessionStorage.getItem("NIWA_SESSION"))
 			.then(function(data)
 			{

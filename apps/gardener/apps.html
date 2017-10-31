@@ -3,27 +3,17 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>NIWA - Gardener</title>
-
 		<link rel="stylesheet" href="css/apps.less">
-
-		<script type="text/javascript" defer="defer" src="/morgas/Morgas.js"></script>
-		<script type="text/javascript" defer="defer" src="/morgas/Morgas.util.function.rescope.js"></script>
-		<script type="text/javascript" defer="defer" src="/morgas/Morgas.util.object.adopt.js"></script>
-		<script type="text/javascript" defer="defer" src="/morgas/Morgas.Promise.js"></script>
-		<script type="text/javascript" defer="defer" src="/morgas/Morgas.util.Request.js"></script>
-		<script type="text/javascript" defer="defer" src="/morgas/gui/TableConfig.js"></script>
-		<script type="text/javascript" defer="defer" src="/morgas/gui/TableConfig.Select.js"></script>
-		<script type="text/javascript" defer="defer" src="/morgas/gui/ConfigSettings.js"></script>
-		<script type="text/javascript" defer="defer" src="js/apps.js"></script>
-		<link rel="stylesheet" href="/morgas/gui/css/TableConfig.Select.less">
+		<script type="text/javascript" defer="defer" src="rest/dependencyManager/apps.js"></script>
 	</head>
 	<body>
-		<div id="actions">
-			<button data-action="stop">stop</button>
-			<button data-action="start">start</button>
-			<button data-action="restart">restart</button>
-		</div>
+		<fieldset disabled id="actions">
+			<button disabled data-action="add" accesskey="a">add</button>
+			<button disabled data-action="start" accesskey="s">start</button>
+			<button disabled data-action="edit" accesskey="e">edit</button>
+			<button disabled data-action="stop" accesskey="h">stop</button>
+			<button disabled data-action="delete" accesskey="d">delete</button>
+		</fieldset>
 		<div id="apps"></div>
 	</body>
 </html>
