@@ -40,8 +40,7 @@
 					if (users[username]==password)
 					{
 						session.user={
-							name:username,
-							permissions:await SC.Permissions.get(username)
+							name:username
 						};
 					}
 					else throw new SC.ServiceResult({data:session.token,status:401});
@@ -95,7 +94,7 @@
 			{
 				return SC.Permissions.addUser(sessionToken,username);
 			})
-			//hide return value
+			//@suppress UnhandledPromiseRejectionWarning
 			.then(µ.constantFunctions.n);
 
 		},
