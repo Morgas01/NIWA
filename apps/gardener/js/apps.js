@@ -7,8 +7,15 @@
 	SC=SC({
 		AppEditDialog:"AppEditDialog",
 		AbstractWorker:"AbstractWorker",
-		actionize:"actionize"
+		actionize:"gui.actionize"
 	});
+
+	let actionsContainer=document.querySelector("#actions");
+	let addBtn=document.querySelector("[data-action=add");
+	let startBtn=document.querySelector("[data-action=start");
+	let editBtn=document.querySelector("[data-action=edit");
+	let stopBtn=document.querySelector("[data-action=stop");
+	let deleteBtn=document.querySelector("[data-action=delete");
 
 	let tableContainer=document.querySelector("#apps");
 	let appTable=new Table(new Select([
@@ -29,6 +36,10 @@
 		{
 			appTable.clear();
 			appTable.add(data);
+			startBtn.disabled=true;
+            editBtn.disabled=true;
+            stopBtn.disabled=true;
+            deleteBtn.disabled=true;
 		},
 		function()
 		{
@@ -42,12 +53,6 @@
 	reloadTable()
 	.then(function()
 	{
-		let actionsContainer=document.querySelector("#actions");
-		let addBtn=document.querySelector("[data-action=add");
-        let startBtn=document.querySelector("[data-action=start");
-        let editBtn=document.querySelector("[data-action=edit");
-        let stopBtn=document.querySelector("[data-action=stop");
-        let deleteBtn=document.querySelector("[data-action=delete");
 
         actionsContainer.disabled=false;
         addBtn.disabled=false;
@@ -62,31 +67,33 @@
         	editBtn.disabled=false;
         	deleteBtn.disabled=false;
         	deleteBtn.classList.toggle("warn",appData.state!==SC.AbstractWorker.states.CLOSE);
-
-        	SC.actionize(actionsContainer,{
-        		"add":function()
-        		{
-        		}
-                "start":function()
-                {
-                }
-                "edit":function()
-                {
-                	actionsContainer.disabled=true;
-                	new SC.AppEditDialog()
-                	.always(function()
-                	{
-        				actionsContainer.disabled=false;
-                	})
-                }
-                "stop":function()
-                {
-                }
-                "delete":function()
-                {
-                }
-        	})
         });
+
+		SC.actionize({
+			"add":function()
+			{
+			},
+			"start":function()
+			{
+			},
+			"edit":function()
+			{
+				actionsContainer.disabled=true;
+				let app=appTable.getSelected()[0];
+				new SC.AppEditDialog(app,appTable.data)
+				.then(reloadTable)
+				.always(function()
+				{
+					actionsContainer.disabled=false;
+				})
+			},
+			"stop":function()
+			{
+			},
+			"delete":function()
+			{
+			}
+		},actionsContainer);
 	});
 
 })(Morgas,Morgas.setModule,Morgas.getModule,Morgas.hasModule,Morgas.shortcut);
