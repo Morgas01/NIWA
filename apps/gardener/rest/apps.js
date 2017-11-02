@@ -3,7 +3,9 @@
 	SC=SC({
 		Promise:"Promise",
 		ServiceResult:"ServiceResult",
-		remove:"array.remove"
+		remove:"array.remove",
+		File:"File",
+		niwaWorkDir:"niwaWorkDir"
 	})
 
 	module.exports={
@@ -76,8 +78,31 @@
 					}
 				}
 
-				return worker.ask("NIWA","setAppConfig",[context,config]);
+				return worker.ask("NIWA","setAppConfig",{context:context,config:config});
 			});
+		},
+		add:function(param)
+		{
+			return new SC.File(SC.niwaWorkDir).changePath("apps").changePath(param.data.path).exists()
+			.then(function()
+			{
+				return worker.ask("NIWA","addApp",{context:param.data.context,path:param.data.path});
+			},function()
+			{
+				return Promise.reject(new SC.ServiceResult({data:"folder "+this.getAbsolutePath()+" does not exist",status:400}));
+			});
+		},
+		start:function(param)
+		{
+			return worker.ask("NIWA","startApp",param.data.context)
+		},
+		stop:function(param)
+		{
+			return worker.ask("NIWA","stopApp",param.data.context)
+		},
+		remove:function(param)
+		{
+			return worker.ask("NIWA","removeApp",param.data.context)
 		}
 	};
 

@@ -7,7 +7,8 @@
 	SC=SC({
 		AppEditDialog:"AppEditDialog",
 		AbstractWorker:"AbstractWorker",
-		actionize:"gui.actionize"
+		actionize:"gui.actionize",
+		Idlg:"gui.InputDialog"
 	});
 
 	let actionsContainer=document.querySelector("#actions");
@@ -15,7 +16,7 @@
 	let startBtn=document.querySelector("[data-action=start");
 	let editBtn=document.querySelector("[data-action=edit");
 	let stopBtn=document.querySelector("[data-action=stop");
-	let deleteBtn=document.querySelector("[data-action=delete");
+	let removeBtn=document.querySelector("[data-action=remove");
 
 	let tableContainer=document.querySelector("#apps");
 	let appTable=new Table(new Select([
@@ -39,7 +40,7 @@
 			startBtn.disabled=true;
             editBtn.disabled=true;
             stopBtn.disabled=true;
-            deleteBtn.disabled=true;
+            removeBtn.disabled=true;
 		},
 		function()
 		{
@@ -65,16 +66,64 @@
         	startBtn.disabled=(appData.state!==SC.AbstractWorker.states.CLOSE);
         	stopBtn.disabled=(appData.state!==SC.AbstractWorker.states.OPEN);
         	editBtn.disabled=false;
-        	deleteBtn.disabled=false;
-        	deleteBtn.classList.toggle("warn",appData.state!==SC.AbstractWorker.states.CLOSE);
+        	removeBtn.disabled=false;
+        	removeBtn.classList.toggle("warn",appData.state!==SC.AbstractWorker.states.CLOSE);
         });
 
 		SC.actionize({
 			"add":function()
 			{
+				actionsContainer.disabled=true;
+				new SC.Idlg(`
+<table>
+	<tr>
+		<td>Context</td>
+		<td><input type="text" required name="context" autofocus></td>
+	</tr>
+	<tr>
+		<td>Path</td>
+		<td><input type="text" required name="path"></td>
+	</tr>
+</table>
+<div class="errorMessage"></div>`
+				,{
+					modal:true,
+					actions:{
+						OK:function(values)
+						{
+							this.content.disabled=true;
+							return request({
+								url:"rest/apps/add",
+								data:JSON.stringify(values),
+							})
+							.catch(error=>
+							{
+								µ.logger.error(error);
+								this.content.disabled=false;
+								this.content.querySelector(".errorMessage").textContent=error.response;
+								return Promise.reject();
+							});
+						}
+					}
+				})
+				.then(reloadTable)
+				.always(()=>actionsContainer.disabled=false);
 			},
 			"start":function()
 			{
+				actionsContainer.disabled=true;
+				let app=appTable.getSelected()[0];
+				return request({
+					url:"rest/apps/start",
+					data:JSON.stringify({context:app.context}),
+				})
+				.then(reloadTable,
+				function(error)
+				{
+					µ.logger.error(error);
+					alert("error occurred");
+				})
+				.always(()=>actionsContainer.disabled=false);;
 			},
 			"edit":function()
 			{
@@ -85,13 +134,39 @@
 				.always(function()
 				{
 					actionsContainer.disabled=false;
-				})
+				});
 			},
 			"stop":function()
 			{
+				actionsContainer.disabled=true;
+				let app=appTable.getSelected()[0];
+				return request({
+					url:"rest/apps/stop",
+					data:JSON.stringify({context:app.context}),
+				})
+				.then(reloadTable,
+				function(error)
+				{
+					µ.logger.error(error);
+					alert("error occurred");
+				})
+				.always(()=>actionsContainer.disabled=false);;
 			},
-			"delete":function()
+			"remove":function()
 			{
+				actionsContainer.disabled=true;
+				let app=appTable.getSelected()[0];
+				return request({
+					url:"rest/apps/remove",
+					data:JSON.stringify({context:app.context}),
+				})
+				.then(reloadTable,
+				function(error)
+				{
+					µ.logger.error(error);
+					alert("error occurred");
+				})
+				.always(()=>actionsContainer.disabled=false);;
 			}
 		},actionsContainer);
 	});
