@@ -38,7 +38,9 @@
 			let token=getToken();
 			let entry={
 				token:token,
-				user:null
+				user:{
+					name:"" // guest user
+				}
 			};
 			sessionMap.set(token,entry);
 			setTimer(entry);

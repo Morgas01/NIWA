@@ -15,7 +15,7 @@
 
 	let userRoleTable=null;
 
-	request.json("rest/user/config?session="+sessionStorage.getItem("NIWA_SESSION"))
+	request.json("rest/user/config?token="+sessionStorage.getItem("NIWA_SESSION"))
 	.then(function(data)
 	{
 		let userRoles=SC.UserRole.parse(data);
@@ -76,7 +76,7 @@
             {
             	let selected=userRoleTable.getSelected()[0];
 				actionsContainer.disabled=true;
-            	new SC.dlg(`<input type="hidden" name="session" value="${sessionStorage.getItem('NIWA_SESSION')}"><input name="password" autofocus>`)
+            	new SC.dlg(`<input type="hidden" name="token" value="${sessionStorage.getItem('NIWA_SESSION')}"><input name="password" autofocus>`)
             	.always(function()
             	{
             		actionsContainer.disabled=false;
@@ -111,7 +111,7 @@
             		method:"DELETE",
             		url:"rest/user/config/"+selected.type.toLowerCase(),
             		data:JSON.stringify({
-            			session:sessionStorage.getItem("NIWA_SESSION"),
+            			token:sessionStorage.getItem("NIWA_SESSION"),
             			name:selected.name
             		})
             	})
@@ -137,7 +137,7 @@
 				userRoleTable.remove(entry);
 			}*/
 			userRoleTable.clear();
-			request.json("rest/user/config?session="+sessionStorage.getItem("NIWA_SESSION"))
+			request.json("rest/user/config?token="+sessionStorage.getItem("NIWA_SESSION"))
 			.then(function(data)
 			{
 				userRoles=SC.UserRole.parse(data);

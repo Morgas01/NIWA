@@ -96,6 +96,8 @@
 				if(app.name) appNames[app.name].push(app.context);
 			}
 			let html=`
+<input type="hidden" name="token" value="${sessionStorage.getItem('NIWA_SESSION')}">
+<input type="hidden" name="context" value="${app.context}">
 <table>
 	<tr>
 		<td>
@@ -221,7 +223,7 @@
 						}
 
 						return SC.request({
-							url:"rest/apps/config/"+app.context,
+							url:"rest/apps/config",
 							data:JSON.stringify(values),
 						})
 						.catch(error=>

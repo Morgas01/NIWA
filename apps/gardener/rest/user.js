@@ -18,7 +18,7 @@
 		},
 		logIn:async function(param)
 		{
-			param.data.token=(await worker.module("session","getOrCreate",[param.data.session])).token;
+			param.data.token=(await worker.module("session","getOrCreate",[param.data.token])).token;
 			await worker.module("user","logIn",[param.data.token,param.data.username,param.data.password]);
 			return param.data.token;
 		},
@@ -32,8 +32,8 @@
 			{
 				case "GET":
 					return new SC.Promise([
-						worker.module("user","list",[param.query.session]),
-						worker.module("permissions","getAll",[param.query.session])
+						worker.module("user","list",[param.query.token]),
+						worker.module("permissions","getAll",[param.query.token])
 					])
 					.then(function(userList,config)
 					{
@@ -49,7 +49,7 @@
 						{
 							delete config[user];
 							return worker.module("permissions","deleteUser",[
-								param.query.session,
+								param.query.token,
 								user
 							]);
 						}))
@@ -60,19 +60,19 @@
 					{
 						case "user":
 						return worker.module("user","register",[
-							param.data.session,
+							param.data.token,
 							param.data.name,
 							param.data.password
 						])
 						.then(()=>worker.module("permissions","addUser",[
-							param.data.session,
+							param.data.token,
 							param.data.name,
 							param.data.roles,
 							param.data.permissions
 						]));
 						case "role":
 						return worker.module("permissions","addRole",[
-							param.data.session,
+							param.data.token,
 							param.data.name,
 							param.data.roles,
 							param.data.permissions
@@ -83,7 +83,7 @@
 					if(param.path[0]=="user")
 					{
 						return worker.module("permissions","addUser",[
-							param.data.session,
+							param.data.token,
 							param.data.name,
 							param.data.roles,
 							param.data.permissions
@@ -96,7 +96,7 @@
 						case "User":
 						case "Role":
 						return worker.module("permissions","set"+key,[
-							param.data.session,
+							param.data.token,
 							param.data.name,
 							param.data.roles,
 							param.data.permissions
@@ -108,15 +108,15 @@
 					{
 						case "user":
 						return worker.module("user","delete",[
-							param.data.session,
+							param.data.token,
 							param.data.name
 						]).then(()=>worker.module("permissions","deleteUser",[
-							param.data.session,
+							param.data.token,
 							param.data.name
 						]));
 						case "role":
 						return worker.module("permissions","deleteRole",[
-							param.data.session,
+							param.data.token,
 							param.data.name
 						]);
 					}

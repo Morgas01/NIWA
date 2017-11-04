@@ -31,23 +31,39 @@
 	));
 	tableContainer.appendChild(appTable.getTable());
 
+	let permissions={
+		addApp:false,
+		startApp:false,
+		editApp:false,
+		stopApp:false,
+		removeApp:false
+	};
+
 	let reloadTable=function()
 	{
-		return request.json("rest/apps/list").then(function(data)
-		{
-			appTable.clear();
-			appTable.add(data);
-			startBtn.disabled=true;
-            editBtn.disabled=true;
-            stopBtn.disabled=true;
-            removeBtn.disabled=true;
-		},
-		function()
-		{
-			µ.logger.error(error);
-			alert("error ocurred");
-			return Promise.reject();
-		});
+		return Promise.all([
+			request.json("rest/apps/permissions?token="+sessionStorage.getItem("NIWA_SESSION"))
+			.then(function(data)
+			{
+				permissions=data;
+			}),
+			request.json("rest/apps/list")
+			.then(function(data)
+			{
+				appTable.clear();
+				appTable.add(data);
+				startBtn.disabled=true;
+				editBtn.disabled=true;
+				stopBtn.disabled=true;
+				removeBtn.disabled=true;
+			},
+			function()
+			{
+				µ.logger.error(error);
+				alert("error ocurred");
+				return Promise.reject();
+			})
+		]);
 	};
 	
 	
@@ -56,17 +72,17 @@
 	{
 
         actionsContainer.disabled=false;
-        addBtn.disabled=false;
+        addBtn.disabled=!permissions.addApp;
 
         appTable.getTable().addEventListener("change",function(event)
         {
         	let row=event.target.parentNode;
         	let appData=appTable.change(row);
 
-        	startBtn.disabled=(appData.state!==SC.AbstractWorker.states.CLOSE);
-        	stopBtn.disabled=(appData.state!==SC.AbstractWorker.states.OPEN);
-        	editBtn.disabled=false;
-        	removeBtn.disabled=false;
+        	startBtn.disabled=!(permissions.startApp&&appData.state===SC.AbstractWorker.states.CLOSE);
+        	stopBtn.disabled=!(permissions.stopApp&&appData.state===SC.AbstractWorker.states.OPEN);
+        	editBtn.disabled=!permissions.editApp;
+        	removeBtn.disabled=!permissions.removeApp;
         	removeBtn.classList.toggle("warn",appData.state!==SC.AbstractWorker.states.CLOSE);
         });
 
@@ -75,6 +91,7 @@
 			{
 				actionsContainer.disabled=true;
 				new SC.Idlg(`
+<input type="hidden" name="token" value="${sessionStorage.getItem('NIWA_SESSION')}">
 <table>
 	<tr>
 		<td>Context</td>
@@ -115,7 +132,10 @@
 				let app=appTable.getSelected()[0];
 				return request({
 					url:"rest/apps/start",
-					data:JSON.stringify({context:app.context}),
+					data:JSON.stringify({
+						token:sessionStorage.getItem("NIWA_SESSION"),
+						context:app.context
+					})
 				})
 				.then(reloadTable,
 				function(error)
@@ -142,7 +162,10 @@
 				let app=appTable.getSelected()[0];
 				return request({
 					url:"rest/apps/stop",
-					data:JSON.stringify({context:app.context}),
+					data:JSON.stringify({
+						token:sessionStorage.getItem("NIWA_SESSION"),
+						context:app.context
+					})
 				})
 				.then(reloadTable,
 				function(error)
@@ -158,7 +181,10 @@
 				let app=appTable.getSelected()[0];
 				return request({
 					url:"rest/apps/remove",
-					data:JSON.stringify({context:app.context}),
+					data:JSON.stringify({
+						token:sessionStorage.getItem("NIWA_SESSION"),
+						context:app.context
+					})
 				})
 				.then(reloadTable,
 				function(error)

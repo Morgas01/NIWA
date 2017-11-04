@@ -32,14 +32,17 @@
 				return list;
 			});
 		},
+		permissions:function(param)
+		{
+			return worker.module("permissions","checkAll",[param.query.token,["addApp","startApp","editApp","stopApp","removeApp"]]);
+		},
 		config:function(param)
 		{
-			context=param.path[0];
-			if(!context) return new SC.ServiceResult({status:400,data:"missing path param (context)"});
+			if(!param.data.context) return new SC.ServiceResult({status:400,data:"no context"});
 			return worker.ask("NIWA","appsConfig")
 			.then(function(appsConfig)
 			{
-				let config=appsConfig[context]||{};
+				let config=appsConfig[param.data.context]||{};
 
 				if(param.data.autoStart==null) delete config.autoStart;
 				else config.autoStart=!!param.data.autoStart;
@@ -78,7 +81,11 @@
 					}
 				}
 
-				return worker.ask("NIWA","setAppConfig",{context:context,config:config});
+				return worker.ask("NIWA","setAppConfig",{
+					token:param.data.token,
+					context:param.data.context,
+					config:config
+				});
 			});
 		},
 		add:function(param)
@@ -86,7 +93,11 @@
 			return new SC.File(SC.niwaWorkDir).changePath("apps").changePath(param.data.path).exists()
 			.then(function()
 			{
-				return worker.ask("NIWA","addApp",{context:param.data.context,path:param.data.path});
+				return worker.ask("NIWA","addApp",{
+					token:param.data.token,
+					context:param.data.context,
+					path:param.data.path
+				});
 			},function()
 			{
 				return Promise.reject(new SC.ServiceResult({data:"folder "+this.getAbsolutePath()+" does not exist",status:400}));
@@ -94,15 +105,15 @@
 		},
 		start:function(param)
 		{
-			return worker.ask("NIWA","startApp",param.data.context)
+			return worker.ask("NIWA","startApp",param.data)
 		},
 		stop:function(param)
 		{
-			return worker.ask("NIWA","stopApp",param.data.context)
+			return worker.ask("NIWA","stopApp",param.data)
 		},
 		remove:function(param)
 		{
-			return worker.ask("NIWA","removeApp",param.data.context)
+			return worker.ask("NIWA","removeApp",param.data)
 		}
 	};
 

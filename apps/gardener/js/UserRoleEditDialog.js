@@ -33,7 +33,7 @@
 				noPermissions=userRole.noPermissions;
 			}
 
-			let html=`<input type="hidden" name="session" value="${sessionStorage.getItem('NIWA_SESSION')}"><table>`;
+			let html=`<input type="hidden" name="token" value="${sessionStorage.getItem('NIWA_SESSION')}"><table>`;
 			if(isNew)
 			{
 				html+='<tr><td>Name</td><td><input type="text" name="name" required autofocus></td></tr>';

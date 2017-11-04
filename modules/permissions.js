@@ -23,44 +23,33 @@
 	};
 
 	let permissionsModule={
-		get:function(username)
-		{
-			return readFile()
-			.then(function(permissionConfig)
-			{
-				if (!permissionConfig.users[username]) return new Set();
-
-				let user=permissionConfig.users[username];
-
-				let userPermissions=new Set(user.permissions);
-				let roles=new Set(user.roles);
-				for(let role of roles)
-				{
-					let roleData=permissionConfig.roles[role];
-					roleData.permissions.forEach(p=>userPermissions.add(p));
-					roleData.roles.forEach(r=>roles.add(r));
-				}
-				return userPermissions;
-			});
-		},
 		check:async function(sessionToken,toCheck)
 		{
 			toCheck=toCheck||[];
 
-			let session=await SC.Session.get(sessionToken);
-			let username="";
-			if(session.user!=null) username=session.user.name;
-			let userPermissions=await permissionsModule.get(username);
+			let userPermissions=await getUserPermissions(sessionToken);
 
 			if(!toCheck.every(p=>userPermissions.has(p)))
 			{
 				throw new SC.ServiceResult({data:"forbidden",status:403});
 			}
 		},
+		checkAll:async function(sessionToken,toCheck)
+		{
+			toCheck=toCheck||[];
+
+			let userPermissions=await getUserPermissions(sessionToken);
+
+			return toCheck.reduce(function(obj,p)
+			{
+				obj[p]=userPermissions.has(p);
+				return obj;
+			},{});
+		},
 		getAll:function(sessionToken)
 		{
-			return module.exports.check(sessionToken,["readPermissions"])
-			.then(()=>readFile());
+			return permissionsModule.check(sessionToken,["readPermissions"])
+			.then(()=>readFile(true));
 		},
 		deleteUser:function(sessionToken,name)
 		{
@@ -112,6 +101,29 @@
 		}
 	};
 
+	let getUserPermissions=function(sessionToken)
+	{
+		return Promise.all([
+			readFile(true),
+			SC.Session.get(sessionToken).then(session=>session.user.name,()=>"")
+		])
+		.then(function([permissionConfig,username])
+		{
+			if (!permissionConfig.users[username]) return new Set();
+
+			let user=permissionConfig.users[username];
+
+			let userPermissions=new Set(user.permissions);
+			let roles=new Set(user.roles);
+			for(let role of roles)
+			{
+				let roleData=permissionConfig.roles[role];
+				roleData.permissions.forEach(p=>userPermissions.add(p));
+				roleData.roles.forEach(r=>roles.add(r));
+			}
+			return userPermissions;
+		});
+	};
 	let getReferences=function(permissionConfig,type,name)
 	{
 		let rtn=[];

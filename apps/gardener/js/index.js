@@ -7,7 +7,6 @@
 	});
 
 	let control=document.getElementById("control");
-	let sessionCheckButtons=document.querySelectorAll(".sessionCheck");
 
 	let logOutBtn=document.getElementById("logOut");
 	let logInBtn=document.getElementById("logIn");
@@ -30,19 +29,11 @@
 		}
 		userPromise.then(function(username)
 		{
-			for(let button of sessionCheckButtons)
-			{
-				button.disabled=false;
-			}
 			control.classList.add("loggedIn");
 			logOutBtn.textContent="\uD83D\uDEAB "+username;
 		},
 		function()
 		{
-			for(let button of sessionCheckButtons)
-			{
-				button.disabled=true;
-			}
 			control.classList.remove("loggedIn");
 			logOutBtn.textContent="";
 		});

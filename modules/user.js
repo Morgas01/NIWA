@@ -14,13 +14,13 @@
 	let checkUser=async function(sessionToken)
 	{
 		let session=await SC.Session.get(sessionToken);
-		if(session.user==null) throw new SC.ServiceResult({data:"not logged in",status:400});
+		if(session.user.name==="") throw new SC.ServiceResult({data:"not logged in",status:400});
 		return session;
 	};
 	let checkNoUser=async function(sessionToken)
 	{
 		let session=await SC.Session.get(sessionToken);
-		if(session.user!=null) throw new SC.ServiceResult({data:"logged in",status:400});
+		if(session.user.name!=="") throw new SC.ServiceResult({data:"logged in",status:400});
 		return session;
 	};
 
@@ -39,9 +39,7 @@
 				{
 					if (users[username]==password)
 					{
-						session.user={
-							name:username
-						};
+						session.user.name=username;
 					}
 					else throw new SC.ServiceResult({data:session.token,status:401});
 				});
@@ -52,7 +50,7 @@
 			return checkUser(sessionToken)
 			.then(function(session)
 			{
-				session.user=null;
+				session.user={name:""};
 			},
 			function(serviceResult)
 			{
