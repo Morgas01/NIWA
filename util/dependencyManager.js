@@ -1,7 +1,7 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
 
-	var gui=require("MorgasGui");
-	var Concat=require("concat-with-sourcemaps");
+	let gui=require("MorgasGui");
+	let Concat=require("concat-with-sourcemaps");
 
 	SC=SC({
 		dependencyParser:require.bind(null,"Morgas/lib/dependencyParser"),
@@ -13,27 +13,27 @@
 		File:"File"
 	});
 
-	var normalizePath=function(path){return path.replace(/\\/g,"/");};
-	var morgasJsFile=normalizePath(new SC.File(µ.dirname).changePath("Morgas.js").getAbsolutePath());
+	let normalizePath=function(path){return path.replace(/\\/g,"/");};
+	let morgasJsFile=normalizePath(new SC.File(µ.dirname).changePath("Morgas.js").getAbsolutePath());
 
 
 	module.exports=function(files,relativeTo)
 	{
 		relativeTo=SC.File.stringToFile(relativeTo);
 
-		var replaceDirs=[
+		let replaceDirs=[
 			[normalizePath(relativeTo.getAbsolutePath()),"."],
 			[normalizePath(µ.dirname)+"/","/morgas/"],
 			[normalizePath(gui.dirname)+"/","/morgas/gui/"]
 		];
 
-		var resouceMap=new Map();
+		let resouceMap=new Map();
 
-		var parser=(new SC.dependencyParser()).addSources(files)
+		let parser=(new SC.dependencyParser()).addSources(files)
 		.addModuleRegister(SC.morgasModuleRegister,µ.dirname).addModuleDependencies(SC.morgasModuleDependencies,µ.dirname)
 		.addModuleRegister(SC.morgasGuiModuleRegister,gui.dirname).addModuleDependencies(SC.morgasGuiModuleDependencies,gui.dirname);
 
-		var getFile=function(path)
+		let getFile=function(path)
 		{
 			if(resouceMap.has(path[0]))
 			{
@@ -43,7 +43,7 @@
 			return relativeTo.clone().changePath(path.join("/"));
 		};
 
-		var restService=function(param)
+		let restService=function(param)
 		{
 			if(param.path.length==0||param.path[0]=="")
 			{
@@ -58,7 +58,7 @@
 					for(let key in parser.fileDependencies) rtn.providedFileDependencies[key]=parser.fileDependencies[key];
 					if(param.query.file)
 					{
-						var resolver=new SC.DependencyResolver(rtn.fileDependencies);
+						let resolver=new SC.DependencyResolver(rtn.fileDependencies);
 						let files=[].concat(param.query.file).map(f=>normalizePath(getFile(f.split("/")).getAbsolutePath()));
 						rtn.order=resolver.resolve([...files]);
 						rtn.order.unshift(morgasJsFile);
@@ -67,7 +67,7 @@
 				});
 			}
 
-			var file=getFile(param.path);
+			let file=getFile(param.path);
 
 			return file.exists()
 			.then(function()
@@ -77,14 +77,14 @@
 				return parser.parse()
 				.then(function(result)
 				{
-					var resolver=new SC.DependencyResolver(result.fileDependencies);
-					var files=resolver.resolve([normalizePath(file.getAbsolutePath())]);
+					let resolver=new SC.DependencyResolver(result.fileDependencies);
+					let files=resolver.resolve([normalizePath(file.getAbsolutePath())]);
 					files.unshift(morgasJsFile);
 					return Promise.all(files.map(f=>SC.File.stringToFile(f).read().then(data=>[f,data])))
 					.then(function(fileContents)
 					{
-						var concat=new Concat(true,param.path.join("/"),"\n/********************/\n");
-						for (var [name,data] of fileContents)
+						let concat=new Concat(true,param.path.join("/"),"\n/********************/\n");
+						for (let [name,data] of fileContents)
 						{
 							let replaced=false;
 							for(let[filepath,replacement] of replaceDirs)

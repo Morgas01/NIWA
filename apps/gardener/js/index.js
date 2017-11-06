@@ -14,7 +14,7 @@
 
 	let updateSessionDisplay=function()
 	{
-		let sessionToken=sessionStorage.getItem("NIWA_SESSION");
+		let sessionToken=localStorage.getItem("NIWA_SESSION");
 		let userPromise=null;
 		if(sessionToken)
 		{
@@ -45,7 +45,7 @@
 	{
 		new SC.dlg(
 `
-<input type="hidden" name="token" value="${sessionStorage.getItem('NIWA_SESSION')}">
+<input type="hidden" name="token" value="${localStorage.getItem('NIWA_SESSION')}">
 <table>
 	<tr>
 		<td>Name</td>
@@ -71,14 +71,14 @@
 					})
 					.then(function(token)
 					{
-						sessionStorage.setItem("NIWA_SESSION",token);
+						localStorage.setItem("NIWA_SESSION",token);
 						updateSessionDisplay();
 					},
 					error=>
 					{
 						if(error.status<500)
 						{
-							sessionStorage.setItem("NIWA_SESSION",error.response);
+							localStorage.setItem("NIWA_SESSION",error.response);
 							for(let input of this.content.querySelectorAll("[name]")) input.setCustomValidity("invalid");
 						}
 						µ.logger.error(error);
@@ -90,7 +90,7 @@
 	});
 	logOutBtn.addEventListener("click",function()
 	{
-		let sessionToken=sessionStorage.getItem("NIWA_SESSION");
+		let sessionToken=localStorage.getItem("NIWA_SESSION");
 		if(sessionToken)
 		{
 			userPromise=request({

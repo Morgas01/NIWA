@@ -96,7 +96,7 @@
 				if(app.name) appNames[app.name].push(app.context);
 			}
 			let html=`
-<input type="hidden" name="token" value="${sessionStorage.getItem('NIWA_SESSION')}">
+<input type="hidden" name="token" value="${localStorage.getItem('NIWA_SESSION')}">
 <input type="hidden" name="context" value="${app.context}">
 <table>
 	<tr>

@@ -42,7 +42,7 @@
 	let reloadTable=function()
 	{
 		return Promise.all([
-			request.json("rest/apps/permissions?token="+sessionStorage.getItem("NIWA_SESSION"))
+			request.json("rest/apps/permissions?token="+localStorage.getItem("NIWA_SESSION"))
 			.then(function(data)
 			{
 				permissions=data;
@@ -91,7 +91,7 @@
 			{
 				actionsContainer.disabled=true;
 				new SC.Idlg(`
-<input type="hidden" name="token" value="${sessionStorage.getItem('NIWA_SESSION')}">
+<input type="hidden" name="token" value="${localStorage.getItem('NIWA_SESSION')}">
 <table>
 	<tr>
 		<td>Context</td>
@@ -133,7 +133,7 @@
 				return request({
 					url:"rest/apps/start",
 					data:JSON.stringify({
-						token:sessionStorage.getItem("NIWA_SESSION"),
+						token:localStorage.getItem("NIWA_SESSION"),
 						context:app.context
 					})
 				})
@@ -163,7 +163,7 @@
 				return request({
 					url:"rest/apps/stop",
 					data:JSON.stringify({
-						token:sessionStorage.getItem("NIWA_SESSION"),
+						token:localStorage.getItem("NIWA_SESSION"),
 						context:app.context
 					})
 				})
@@ -182,7 +182,7 @@
 				return request({
 					url:"rest/apps/remove",
 					data:JSON.stringify({
-						token:sessionStorage.getItem("NIWA_SESSION"),
+						token:localStorage.getItem("NIWA_SESSION"),
 						context:app.context
 					})
 				})

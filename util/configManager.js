@@ -4,15 +4,16 @@
 		File:"File",
 		util:"File.util",
 		Config:"Config",
-		eq:"equals"
+		eq:"equals",
+		ServiceResult:"ServiceResult"
 	});
 
 	module.exports=function(config)
 	{
 		if(!(config instanceof SC.Config)) config=SC.Config.parse(config);
-		var folder=new SC.File(__dirname).changePath("../config");
-		var configFile=folder.clone().changePath(worker.name+".config.json");
-		var ready=SC.util.enshureDir(folder)
+		let folder=new SC.File(__dirname).changePath("../config");
+		let configFile=folder.clone().changePath(worker.context+".config.json");
+		let ready=SC.util.enshureDir(folder)
 		.then(function()
 		{
 			return SC.util.getRotatedFile(configFile,JSON.parse)
@@ -20,7 +21,7 @@
 			{
 				if(result.others.length>0)
 				{
-					for(var other of result.others)
+					for(let other of result.others)
 					{
 						µ.logger.warn({error:other.error,file:other.file.getAbsolutePath()},"error loading config");
 					}
@@ -36,34 +37,37 @@
 			});
 		});
 
-		var api=function(param)
+		let api=function(param)
 		{
 			switch(param.method)
 			{
 				default:
 				case "GET":
-					var c=config;
+				{
+					let c=config;
 					if(param.path.length>0)
 					{
-						var c=config.get(param.path.map(decodeURIComponent));
+						let c=config.get(param.path.map(decodeURIComponent));
 						if(!c)
 						{
-							param.status=404;
-							return "not found "+param.path.join("/");
+							return new SC.ServiceResult({data:"not found "+param.path.join("/"),status:404});
 						}
 					}
 					return c.toJSON();
 					break;
+				}
 				case "POST":
-					var field=param.data.path&&config.get(param.data.path);
-					var setCheck=false;
+				{
+					let field=param.data.path&&config.get(param.data.path);
+					console.log(param.data,field,config);
+					let setCheck=false;
 					if(field)
 					{
-						var oldValue=field.get();
-						var setCheck=field.set(param.data.value)
+						let oldValue=field.get();
+						setCheck=field.set(param.data.value)
 						if(setCheck===true)
 						{
-							var p=api.save();
+							let p=api.save();
 							setImmediate(api.notify,param.data.path,oldValue,field.get());
 							return p;
 						}
@@ -75,31 +79,34 @@
 `{String|String[]} path
 {*} value`
 					};
+				}
 				case "OPTIONS":
-					var c=config;
+				{
+					let c=config;
 					if(param.path.length>0)
 					{
-						var c=config.get(param.path.map(decodeURIComponent));
+						let c=config.get(param.path.map(decodeURIComponent));
 						if(!c)
 						{
-							param.status=404;
-							return "not found "+param.path.join("/");
+							return new SC.ServiceResult({data:"not found "+param.path.join("/"),status:404});
 						}
 					}
 					return {
 						description:c.toDescription(),
 						value:c.toJSON()
 					};
+				}
 				case "PUT":
-					var error="undefined";
-					var container=param.data.path&&config.get(param.data.path);
+				{
+					let error="undefined";
+					let container=param.data.path&&config.get(param.data.path);
 					if(container)
 					{
 						if( container instanceof SC.Config.Container.Object)
 						{
 							if(container.get(param.data.key))error="key in use";
 							else {
-								var c=container.add(param.data.key,param.data.field);
+								let c=container.add(param.data.key,param.data.field);
 								if(c)
 								{
 									if(param.data.value!==undefined) c.set(param.data.value);
@@ -142,9 +149,11 @@
 {*} [value]
 {Object} [field] - only when container is Config.Object`
 					};
+				}
 				case "DELETE":
-					var error="undefined";
-					var container=param.data.path&&config.get(param.data.path);
+				{
+					let error="undefined";
+					let container=param.data.path&&config.get(param.data.path);
 					if(container)
 					{
 						if( container instanceof SC.Config.Container.Object)
@@ -174,20 +183,21 @@
 `{String|String[]} path
 {String} key`
 					};
+				}
 			}
 		};
 		api.ready=ready;
-		var listeners=[];
+		let listeners=[];
 		api.addListener=function(path,fn)
 		{
 			listeners.push({path:[].concat(path),fn:fn});
 		};
 		api.removeListener=function(pathOfFn,fn)
 		{
-			for(var i=listeners.length-1;i>=0;i--)
+			for(let i=listeners.length-1;i>=0;i--)
 			{
-				var entry=listeners[i];
-				var pathEqual=pathOfFn.length==entry.path.length&&entry.path.every((item,index)=>pathOfFn[index]==item);
+				let entry=listeners[i];
+				let pathEqual=pathOfFn.length==entry.path.length&&entry.path.every((item,index)=>pathOfFn[index]==item);
 				if(!fn&&(pathEqual||pathOfFn===entry.fn)||
 					(pathEqual&&fn==entry.fn))
 				{
@@ -197,7 +207,7 @@
 		};
 		api.notify=function(path, oldValue, newValue)
 		{
-			for(var listener of listeners)
+			for(let listener of listeners)
 			{
 				try
 				{
