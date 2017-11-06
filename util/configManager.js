@@ -98,8 +98,16 @@
 				}
 				case "PUT":
 				{
-					let error="undefined";
 					let container=param.data.path&&config.get(param.data.path);
+					let rtn={
+						result:false,
+						error:"undefined",
+						usage:String.raw
+`{String|String[]} path
+{String} key
+{*} [value]
+{Object} [field] - only when container is Config.Object`
+					};
 					if(container)
 					{
 						if( container instanceof SC.Config.Container.Object)
@@ -110,72 +118,60 @@
 								if(c)
 								{
 									if(param.data.value!==undefined) c.set(param.data.value);
-									return {
-										result:true
-									}
+									rtn.result=true;
 								}
-								else error="bad or no field";
+								else rtn.error="bad or no field";
 							}
 						}
 						else if( container instanceof SC.Config.Container.Array)
 						{
 							if(param.data.key==container.length)
 							{
-								return {
-									result:!!container.push(param.data.value)
-								};
+								rtn.result=!!container.push(param.data.value);
 							}
-							else if (param.data.key<container.length) error="key in use";
-							else error="key out of bounds";
+							else if (param.data.key<container.length) rtn.error="key in use";
+							else rtn.error="key out of bounds";
 						}
 						else if( container instanceof SC.Config.Container.Map)
 						{
 							if(!container.get(param.data.key))
 							{
-								return {
-									result:!!container.add(param.data.key,param.data.value)
-								};
+								rtn.result=!!container.add(param.data.key,param.data.value);
 							}
-							else error="key in use";
+							else rtn.error="key in use";
 						}
 					}
-					else error="container not found";
-					return {
-						result:false,
-						error:error,
-						usage:String.raw
-`{String|String[]} path
-{String} key
-{*} [value]
-{Object} [field] - only when container is Config.Object`
-					};
+					else
+					{
+						rtn.error="container not found";
+					}
+
+					if(rtn.result) return api.save();
+					return rtn;
 				}
 				case "DELETE":
 				{
 					let error="undefined";
 					let container=param.data.path&&config.get(param.data.path);
+					let result=false;
 					if(container)
 					{
 						if( container instanceof SC.Config.Container.Object)
 						{
-							return {
-								result:container.remove(param.data.key)
-							};
+							result=container.remove(param.data.key);
 						}
 						else if( container instanceof SC.Config.Container.Array)
 						{
-							return {
-								result:container.splice(param.data.key)
-							};
+							result=container.splice(param.data.key);
 						}
 						else if( container instanceof SC.Config.Container.Map)
 						{
-							return {
-								result:container.remove(param.data.key)
-							};
+							result=container.remove(param.data.key);
 						}
 					}
 					else error="container not found";
+
+					if(result) return api.save();
 					return {
 						result:false,
 						error:error,
