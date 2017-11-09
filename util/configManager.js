@@ -59,7 +59,6 @@
 				case "POST":
 				{
 					let field=param.data.path&&config.get(param.data.path);
-					console.log(param.data,field,config);
 					let setCheck=false;
 					if(field)
 					{
@@ -85,7 +84,7 @@
 					let c=config;
 					if(param.path.length>0)
 					{
-						let c=config.get(param.path.map(decodeURIComponent));
+						c=config.get(param.path.map(decodeURIComponent));
 						if(!c)
 						{
 							return new SC.ServiceResult({data:"not found "+param.path.join("/"),status:404});
