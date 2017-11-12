@@ -183,11 +183,11 @@
 		};
 		api.ready=ready;
 		let listeners=[];
-		api.addListener=function(path,fn)
+		api.addChangeListener=function(path,fn)
 		{
 			listeners.push({path:[].concat(path),fn:fn});
 		};
-		api.removeListener=function(pathOfFn,fn)
+		api.removeChangeListener=function(pathOfFn,fn)
 		{
 			for(let i=listeners.length-1;i>=0;i--)
 			{
@@ -202,18 +202,19 @@
 		};
 		api.notify=function(path, oldValue, newValue)
 		{
-			for(let listener of listeners)
+			let filter=SC.eq.containsOrdered(path);
+			listeners.filter(listener=>filter(listener.path))
+			.forEach(function(listener)
 			{
 				try
 				{
-					if(SC.eq(path,listener.path))
-						listener.fn(newValue,oldValue);
+					listener.fn(newValue,oldValue);
 				}
 				catch(e)
 				{
 					µ.logger.error({error:e},"error in notify callback");
 				}
-			}
+			});
 		};
 		api.save=function()
 		{
