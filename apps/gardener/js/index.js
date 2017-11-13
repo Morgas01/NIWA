@@ -73,6 +73,8 @@
 					{
 						localStorage.setItem("NIWA_SESSION",token);
 						updateSessionDisplay();
+						let mainFrame=document.querySelector("iframe");
+						mainFrame.src=mainFrame.src;
 					},
 					error=>
 					{
