@@ -85,7 +85,7 @@
 				if(!(username in users))
 				{
 					users[username]=password||"";
-					return userFile.write(JSON.stringify(users));
+					return userFile.write(JSON.stringify(users,null,"\t"));
 				}
 			})
 			.then(function()
@@ -109,7 +109,7 @@
 					if(users[username])
 					{
 						delete users[username];
-						return userFile.write(JSON.stringify(users))
+						return userFile.write(JSON.stringify(users,null,"\t"))
 						.then(()=>SC.Permissions.deleteUsers(sessionToken,[username]))
 						.then(µ.constantFunctions.n);
 					}

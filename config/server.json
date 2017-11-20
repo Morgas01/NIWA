@@ -1,0 +1,7 @@
+{
+	"port":8081,
+	"welcomePage":"gardener/index.html",
+	"logLevel":"INFO",
+	"allowCommunication":true,
+	"autoStart":true
+}

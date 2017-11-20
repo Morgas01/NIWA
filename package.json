@@ -1,18 +1,21 @@
 {
-  "name": "NIWA",
-  "version": "0.0.1",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Morgas01/NIWA"
-  },
-  "dependencies": {
-    "Morgas": "git+https://github.com/Morgas01/Morgas.js.git",
-    "MorgasGui": "git+https://github.com/Morgas01/MorgasGui.git",
-    "bunyan": "^1.8.1",
-    "concat-with-sourcemaps": "^1.0.4",
-    "less": "^2.7.1"
-  },
-  "scripts": {
-    "start": "node index | bunyan"
-  }
+	"name": "NIWA",
+	"version": "0.0.1",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Morgas01/NIWA"
+	},
+	"engines": {
+		"node":">=8.9.1"
+	},
+	"dependencies": {
+		"Morgas": "git+https://github.com/Morgas01/Morgas.js.git",
+		"MorgasGui": "git+https://github.com/Morgas01/MorgasGui.git",
+		"bunyan": "^1.8.1",
+		"concat-with-sourcemaps": "^1.0.4",
+		"less": "^2.7.1"
+	},
+	"scripts": {
+		"start": "node index | bunyan"
+	}
 }
