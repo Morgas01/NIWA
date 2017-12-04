@@ -1,13 +1,24 @@
 require("Morgas");
+let PATH=require("path");
+module.exports=function(niwaWorkDir=__dirname,overridePort=null)
+{
 
-let config=require("./lib/config");
-let LOG=require("./lib/logger");
-let startServer=require("./lib/startServer");
-let backGardener=require("./lib/backGardener");
+	µ.setModule("niwaWorkDir",PATH.resolve(niwaWorkDir));
 
-LOG.setLevel(config.logLevel);
-LOG.setCoreLogger(LOG("main"));
+	let LOG=require("./lib/logger");
+	LOG.setCoreLogger(LOG("main"));
 
-startServer(config.port)
-.then(backGardener.initApps)
-.catch(µ.logger.error);
+	let config=require("./lib/config");
+	if(overridePort) config.port=overridePort;
+	else if(!config.port) throw "no port defined!";
+	LOG.setLevel(config.logLevel);
+
+	let startServer=require("./lib/startServer");
+	let backGardener=require("./lib/backGardener");
+
+	let rtn=startServer(config.port)
+	.then(backGardener.initApps);
+
+    rtn.catch(µ.logger.error);
+    return rtn;
+};

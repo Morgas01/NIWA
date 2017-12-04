@@ -1,0 +1,15 @@
+#!/usr/bin/env node
+
+let niwaWorkDir=undefined;
+if(process.argv.length>2)
+{
+	niwaWorkDir=Path.resolve(process.argv[2]);
+}
+
+let overridePort=undefined;
+if(process.argv.length>3)
+{
+	overridePort=parseInt(process.argv[3],10);
+}
+
+require("..")(niwaWorkDir,overridePort);

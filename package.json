@@ -15,7 +15,10 @@
 		"concat-with-sourcemaps": "^1.0.4",
 		"less": "^2.7.1"
 	},
+	"bin": {
+		"niwa":"./bin/niwa"
+	},
 	"scripts": {
-		"start": "node index | bunyan"
+		"start": "node ./bin/niwa | bunyan"
 	}
 }
