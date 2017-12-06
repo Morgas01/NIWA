@@ -1,4 +1,4 @@
-require("Morgas");
+require("morgas");
 let PATH=require("path");
 module.exports=function(niwaWorkDir=__dirname,overridePort=null)
 {
