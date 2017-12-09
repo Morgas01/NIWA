@@ -1,6 +1,6 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
 
-	let gui=require("MorgasGui");
+	let gui=require("morgas.gui");
 	let Concat=require("concat-with-sourcemaps");
 
 	SC=SC({
