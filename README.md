@@ -1,6 +1,5 @@
 # NIWA
- NIWA intertwined web applications
-
+NIWA intertwined web applications
 
 NIWA is an application server for simple NodeJs apps that can communicate with each other.
 
@@ -70,8 +69,13 @@ To deploy an app you can place it in a directory under `apps` or define it in th
 }
 ```
 
+##styles 
+`*.less` files are automatically compiled when they are requested with a url containing `/css/` instead of `/less/`.
+
+e.g.: `app/some/css/path/styles.less`=>`app/some/less/path/styles.less //compiled`
+
 ##rest services
-Defining a means simply putting a .js file in the `./rest` directory in your application.
+Defining a rest service means simply putting a `<name>.js` file in the `app/rest` directory in your application.
 Those files are loaded when the application gets deployed.
 Such a file can export a function or a object structure of functions. Each context of the requested url is matched to a key in that structure until a function is found.
 The first context matches to the filename (without the extension). The remainder of the path as an array is also provided as the second argument of the function.
@@ -88,9 +92,74 @@ A function may return any serializable (`JSON.stringify`) value or an instance o
 - `process.cwd() // application directory`
 - `"morgas"` package is already required
 	- `niwa/util` is added as resource folder
+		- ServiceResult
 		- configManager
 		- dependencyManager
-		- ServiceResult
 		- mimeTypes (irrelevant)
 		
 		
+#####util/ServiceResult
+A small class for rest responses.
+
+```js
+let ServiceResult=µ.getModule("ServiceResult");
+return new ServiceResult({status:403,data:"Please log in first"});
+````
+
+
+
+#####util/configManager
+Creates a rest api for a persistent config.
+The config is saved under `<work directory>/config/<app context>.json` with file rotation of 3.
+
+**Parameter** `Morgas.Config` or a config description (see `Morgas.Config.parse`)
+
+**returns**
+```
+api=function(param) // rest api
+api.ready //Promise that is resolves to Morgas.Conig instance
+api.addChangeListener=function(path,fn)
+api.removeChangeListener=function(pathOfFn,fn)
+api.notify=function(path, oldValue, newValue) // triggers changeListeners
+api.save=function() // returns Promise
+```
+
+
+example service
+```js
+module.exports=µ.getModule("configManager")({
+	name:"string",
+	range:{
+		type:number,
+		default:3,
+		min:0,
+		max:10,
+		step:0.5
+	},
+	check:{
+		type:"boolean
+	},
+	list:{
+		type:"array",
+		model:"string"
+	}
+});
+```
+#####dependencyManager
+Creates a rest api to serve js files with all needed dependencies.
+It uses `morgas/lib/dependencyParser` to parse files
+
+**Parameter** Array of file or directory paths and a base path from which navigation begins
+
+**returns**
+```
+api=function(param) // rest api
+api.addResource=function(moduleRegister,moduleDependencies,directory,name=null)
+```
+Morgas and MorgasGui resouces are already registered
+
+example service
+```js
+module.exports=µ.getModule("dependencyManager")(["js"],"js");
+
+```
