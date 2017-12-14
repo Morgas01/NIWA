@@ -51,6 +51,13 @@ In order to start without providing a port you need a `config/server.json`.
 	"autoStart":false			// default to start app on server start
 }
 ```
+#####defaults
+```js
+logLevel:"INFO"
+allowCommunication:true
+autoStart:false
+```
+
 
 #Apps
 An Application is a directory full of static assets with few exceptions.
