@@ -1,5 +1,5 @@
 # NIWA
-NIWA intertwined web applications
+**N**IWA **I**ntertwined **W**eb **A**pplications 
 
 NIWA is an application server for simple NodeJs apps that can communicate with each other.
 
@@ -43,7 +43,7 @@ You can use an empty directory as a work directory.
 In order to start without providing a port you need a `config/server.json`.
 
 ###config/server.json
-```json
+```
 {
 	"port":8081,
 	"logLevel":"INFO",			// default logger level
@@ -65,7 +65,7 @@ Each app is deployed in a separate NodeJs process (using Morgas `nodeWorker`).
 To deploy an app you can place it in a directory under `apps` or define it in the `config/apps.json` (or both).
 
 ##config/apps.json
-```json
+```
 {
 	"<name>":{
 		"path":"<relative from apps or absolute>",
@@ -146,7 +146,7 @@ module.exports=µ.getModule("configManager")({
 		step:0.5
 	},
 	check:{
-		type:"boolean
+		type:"boolean"
 	},
 	list:{
 		type:"array",
@@ -202,14 +202,14 @@ Currently this is only a treated as a hint and is therefore optional.
 
 ##Communication
 Applications with a [name](#application-name) can communicate with each other. 
-It has to be allowed in the [apps.json](#config-apps.json).
+It has to be allowed in the [apps.json](#configappsjson).
 
 #####Example
 app1
 ```js
 worker.myMethod=function(data,context)
 {
-	if(context=="someContext) return Promise.reject();
+	if(context=="someContext") return Promise.reject();
 	return "value";
 };
 ```
@@ -254,8 +254,8 @@ Guest users have always an empty string as name
 
 ##user
 ####methods
--	logIn(sessionToken,username,password="")	=>	void (reject value is a [ServiceResult](#util-ServiceResult))
--	logOut(sessionToken)	=>	void (reject value is a [ServiceResult](#util-ServiceResult))
+-	logIn(sessionToken,username,password="")	=>	void (reject value is a [ServiceResult](#utilserviceresult))
+-	logOut(sessionToken)	=>	void (reject value is a [ServiceResult](#utilserviceresult))
 -	register(sessionToken,username,password) => void (permission `"registerUser"` needed)
 -	delete(sessionToken,username) => void (permission `"deleteUser"` needed)
 -	list(sessionToken) => void (permission `"readPermissions"` needed)
@@ -263,8 +263,8 @@ Guest users have always an empty string as name
 
 ##permissions
 ####methods
--	check(sessionToken,toCheck=[])	=>	void (reject value is a [ServiceResult](#util-ServiceResult))
--	checkAll(sessionToken,toCheck=[])	=>	Boolean[] (reject value is a [ServiceResult](#util-ServiceResult))
+-	check(sessionToken,toCheck=[])	=>	void (reject value is a [ServiceResult](#utilserviceresult))
+-	checkAll(sessionToken,toCheck=[])	=>	Boolean[] (reject value is a [ServiceResult](#utilserviceresult))
 -	getAll(sessionToken) => void (permission `"readPermissions"` needed)
 -	addUser(sessionToken,name) => void (permission `"addUser"` needed)
 -	setUser(sessionToken,name,roles,permissions) => void (permission `"setUser"` needed)
