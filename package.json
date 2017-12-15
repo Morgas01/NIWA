@@ -1,6 +1,6 @@
 {
 	"name": "niwa",
-	"version": "0.8.2",
+	"version": "0.8.3",
 	"description": "NIWA intertwined web applications",
 	"homepage": "https://github.com/Morgas01/NIWA",
 	"bugs": {
@@ -23,7 +23,7 @@
 		"concat-with-sourcemaps": "^1.0.4",
 		"less": "^2.7.3",
 		"morgas": "^0.8.2",
-		"morgas.gui": "^0.8.2"
+		"morgas.gui": "^0.8.3"
 	},
 	"engines": {
 		"node": ">=8.9.1"
