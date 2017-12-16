@@ -2,6 +2,7 @@
 	"name": "niwa",
 	"version": "0.8.3",
 	"description": "NIWA intertwined web applications",
+	"keywords":["niwa","server"],
 	"homepage": "https://github.com/Morgas01/NIWA",
 	"bugs": {
 		"url": "https://github.com/Morgas01/Morgas.js/issues"
