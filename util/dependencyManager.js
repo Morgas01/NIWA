@@ -4,7 +4,7 @@
 	let Concat=require("concat-with-sourcemaps");
 
 	SC=SC({
-		dependencyParser:require.bind(null,"Morgas/lib/dependencyParser"),
+		dependencyParser:require.bind(null,"morgas/lib/dependencyParser"),
 		morgasModuleRegister:"Morgas.ModuleRegister",
 		morgasModuleDependencies:"Morgas.ModuleDependencies",
 		morgasGuiModuleRegister:"Morgas.gui.ModuleRegister",
