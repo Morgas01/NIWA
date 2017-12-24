@@ -50,12 +50,14 @@
 				return parser.parse()
 				.then(function(rtn)
 				{
+					/*
 					rtn.providedModules={};
 					for(let key in parser.moduleRegister) rtn.providedModules[key]=parser.moduleRegister[key].getAbsolutePath();
 					rtn.providedDependencies={};
 					for(let key in parser.moduleDependencies) rtn.providedDependencies[key]=parser.moduleDependencies[key];
 					rtn.providedFileDependencies={};
 					for(let key in parser.fileDependencies) rtn.providedFileDependencies[key]=parser.fileDependencies[key];
+					*/
 					if(param.query.file)
 					{
 						let resolver=new SC.DependencyResolver(rtn.fileDependencies);
@@ -77,9 +79,25 @@
 				return parser.parse()
 				.then(function(result)
 				{
-					let resolver=new SC.DependencyResolver(result.fileDependencies);
-					let files=resolver.resolve([normalizePath(file.getAbsolutePath())]);
+					let toResolve
+					let filepath=normalizePath(file.getAbsolutePath());
+					let isConsumer=(filepath in result.consumingDependencies)
+					if(isConsumer)
+					{
+						let dependencies=result.consumingDependencies[filepath];
+						toResolve=dependencies.uses.concat(dependencies.deps);
+					}
+					else
+					{
+						toResolve=Object.entries(result.moduleRegister)
+						.filter(([module,modulePath])=>modulePath===file.getAbsolutePath())
+						.map(([module])=>module);
+					}
+					let resolver=new SC.DependencyResolver(result.moduleDependencies);
+					let modules=resolver.resolve(toResolve);
+					let files=modules.map(key=>result.moduleRegister[key]);
 					files.unshift(morgasJsFile);
+					if(isConsumer) files.push(filepath);
 					return Promise.all(files.map(f=>SC.File.stringToFile(f).read().then(data=>[f,data])))
 					.then(function(fileContents)
 					{
