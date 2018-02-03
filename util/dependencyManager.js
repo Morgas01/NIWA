@@ -10,7 +10,8 @@
 		morgasGuiModuleRegister:"Morgas.gui.ModuleRegister",
 		morgasGuiModuleDependencies:"Morgas.gui.ModuleDependencies",
 		DependencyResolver:"DepRes",
-		File:"File"
+		File:"File",
+		uniquify:"uniquify"
 	});
 
 	let normalizePath=function(path){return path.replace(/\\/g,"/");};
@@ -43,6 +44,28 @@
 			return relativeTo.clone().changePath(path.join("/"));
 		};
 
+		let resolveFile=function(parseResults,filepath)
+		{
+			let toResolve
+			let isConsumer=(filepath in parseResults.consumingDependencies);
+			if(isConsumer)
+			{
+				let dependencies=parseResults.consumingDependencies[filepath];
+				toResolve=dependencies.uses.concat(dependencies.deps);
+			}
+			else
+			{
+				toResolve=Object.entries(parseResults.moduleRegister)
+				.filter(([module,modulePath])=>modulePath===file.getAbsolutePath())
+				.map(([module])=>module);
+			}
+			let resolver=new SC.DependencyResolver(parseResults.moduleDependencies);
+			let modules=resolver.resolve(toResolve);
+			let files=SC.uniquify(modules.map(key=>parseResults.moduleRegister[key]));
+			files.unshift(morgasJsFile);
+			return files;
+		}
+
 		let restService=function(param)
 		{
 			if(param.path.length==0||param.path[0]=="")
@@ -50,20 +73,13 @@
 				return parser.parse()
 				.then(function(rtn)
 				{
-					/*
-					rtn.providedModules={};
-					for(let key in parser.moduleRegister) rtn.providedModules[key]=parser.moduleRegister[key].getAbsolutePath();
-					rtn.providedDependencies={};
-					for(let key in parser.moduleDependencies) rtn.providedDependencies[key]=parser.moduleDependencies[key];
-					rtn.providedFileDependencies={};
-					for(let key in parser.fileDependencies) rtn.providedFileDependencies[key]=parser.fileDependencies[key];
-					*/
 					if(param.query.file)
 					{
 						let resolver=new SC.DependencyResolver(rtn.fileDependencies);
-						let files=[].concat(param.query.file).map(f=>normalizePath(getFile(f.split("/")).getAbsolutePath()));
-						rtn.order=resolver.resolve([...files]);
-						rtn.order.unshift(morgasJsFile);
+						let files=[].concat(param.query.file)
+						.map(f=>normalizePath(getFile(f.split("/")).getAbsolutePath()))
+						.map(f=>resolveFile(rtn,f));
+						rtn.order=files;
 					}
 					return rtn;
 				});
@@ -79,24 +95,9 @@
 				return parser.parse()
 				.then(function(result)
 				{
-					let toResolve
 					let filepath=normalizePath(file.getAbsolutePath());
-					let isConsumer=(filepath in result.consumingDependencies)
-					if(isConsumer)
-					{
-						let dependencies=result.consumingDependencies[filepath];
-						toResolve=dependencies.uses.concat(dependencies.deps);
-					}
-					else
-					{
-						toResolve=Object.entries(result.moduleRegister)
-						.filter(([module,modulePath])=>modulePath===file.getAbsolutePath())
-						.map(([module])=>module);
-					}
-					let resolver=new SC.DependencyResolver(result.moduleDependencies);
-					let modules=resolver.resolve(toResolve);
-					let files=modules.map(key=>result.moduleRegister[key]);
-					files.unshift(morgasJsFile);
+					let files=resolveFile(result,filepath)
+					let isConsumer=(filepath in result.consumingDependencies);
 					if(isConsumer) files.push(filepath);
 					return Promise.all(files.map(f=>SC.File.stringToFile(f).read().then(data=>[f,data])))
 					.then(function(fileContents)
