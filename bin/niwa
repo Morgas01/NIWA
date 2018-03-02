@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+let Path=require("path");
+
 let niwaWorkDir=undefined;
 if(process.argv.length>2)
 {
