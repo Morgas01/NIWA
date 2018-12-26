@@ -5,7 +5,7 @@
 	SC=SC({
 		Session:require.bind(null,"./session"),
 		Permissions:require.bind(null,"./permissions"),
-		util:"File.util",
+		util:"File/util",
 		ServiceResult:require.bind(null,"../util/ServiceResult")
 	});
 

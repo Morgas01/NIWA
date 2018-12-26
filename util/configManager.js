@@ -2,7 +2,7 @@
 
 	SC=SC({
 		File:"File",
-		util:"File.util",
+		util:"File/util",
 		Config:"Config",
 		eq:"equals",
 		ServiceResult:"ServiceResult"

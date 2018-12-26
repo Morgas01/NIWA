@@ -3,7 +3,7 @@
 	let File=GMOD("File");
 
 	SC=SC({
-		util:"File.util",
+		util:"File/util",
 		ServiceResult:require.bind(null,"../util/ServiceResult"),
 		Session:require.bind(null,"./session")
 	});
