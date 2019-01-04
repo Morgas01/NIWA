@@ -90,7 +90,7 @@
 		{
 			app.dependencies=app.dependencies||[];
 
-			let appNames=SC.register(1,Array);
+			let appNames=SC.register(1,()=>[]);
 			for(let app of appList)
 			{
 				if(app.name) appNames[app.name].push(app.context);
