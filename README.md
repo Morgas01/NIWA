@@ -106,6 +106,7 @@ A function may return any serializable (`JSON.stringify`) value or an instance o
 	- configManager
 	- dependencyManager
 	- mimeTypes (irrelevant)
+- the module 'niwaAppWorkDir' is a string representing a folder for the app to save files into (<[work directory](#work-directory)>/work/< app context >)
 - [global `worker` extensions](#global-worker-extensions)
 		
 #####util/ServiceResult
