@@ -129,7 +129,7 @@
 							name+="?raw";
 							concat.add(name,data);
 						}
-						return concat.content+"\n//# sourceMappingURL=data:application/json;charset=utf-8;base64," + new Buffer(concat.sourceMap).toString("base64")
+						return concat.content+"\n//# sourceMappingURL=data:application/json;charset=utf-8;base64," + Buffer.from(concat.sourceMap).toString("base64")
 					});
 				})
 				//.then(files=>files.join("\n/********************/\n"));
