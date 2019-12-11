@@ -56,7 +56,7 @@
 			else
 			{
 				toResolve=Object.entries(parseResults.moduleRegister)
-				.filter(([module,modulePath])=>modulePath===file.getAbsolutePath())
+				.filter(([module,modulePath])=>modulePath===filepath)
 				.map(([module])=>module);
 			}
 			let resolver=new SC.DependencyResolver(parseResults.moduleDependencies);
