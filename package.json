@@ -2,13 +2,16 @@
 	"name": "niwa",
 	"version": "0.8.8",
 	"description": "NIWA intertwined web applications",
-	"keywords":["niwa","server"],
+	"keywords": [
+		"niwa",
+		"server"
+	],
 	"homepage": "https://github.com/Morgas01/NIWA",
 	"bugs": {
 		"url": "https://github.com/Morgas01/Morgas.js/issues"
 	},
 	"license": "MIT",
-	"main": "index.js",
+	"main": "lib/niwa.js",
 	"bin": {
 		"niwa": "./bin/niwa"
 	},
@@ -23,7 +26,7 @@
 		"bunyan": "^1.8.14",
 		"concat-with-sourcemaps": "^1.1.0",
 		"less": "^3.9.0",
-		"morgas": "^0.8.8",
+		"morgas": "^0.8.9",
 		"morgas.gui": "^0.8.8"
 	},
 	"engines": {
