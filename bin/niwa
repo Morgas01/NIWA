@@ -14,4 +14,4 @@ if(process.argv.length>3)
 	overridePort=parseInt(process.argv[3],10);
 }
 
-require("..")(niwaWorkDir,overridePort);
+new (require(".."))({yard:niwaWorkDir,door:overridePort}).open();
