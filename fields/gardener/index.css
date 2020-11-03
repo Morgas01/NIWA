@@ -1,0 +1,53 @@
+html,body {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	width: 100%;
+	height: 100%;
+}
+body {
+	padding: 1em;
+	display: flex;
+	flex-wrap: wrap;
+	background-color: goldenrod;
+	background-image: radial-gradient(lightgray, rgba(0,0,0,.2) 1px,transparent 2px), radial-gradient(gray, rgba(0,0,0,.1) 2px,transparent 3px), radial-gradient(white, rgba(0,0,0,.1) 3px,transparent 5px), radial-gradient(gold, rgba(0,0,0,.1) 2px,transparent 3px);
+	background-size: 67px 71px, 137px 139px, 223px 227px, 307px 311px;
+}
+.field, .field-add {
+	margin: 1ex;
+	padding: 1ex;
+	width: 10em;
+	height: 10em;
+	box-sizing: border-box;
+	background: gray;
+}
+.field {
+	display: grid;
+	grid-template: "name state"
+					"path path"
+					"neighbors neighbors";
+}
+.field[data-state="open"] {
+	background: ;
+}
+.field-name {
+	grid-area: name;
+}
+.field-state {
+	grid-area: state;
+}
+.field-path {
+	grid-area: path;
+}
+.field-neighbors {
+	grid-area: neighbors;
+}
+
+.field-add {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-evenly;
+}
+.field-add input {
+	width: 100%;
+}
