@@ -1,7 +1,10 @@
 {
 	"port":8081,
-	"welcomePage":"gardener/index.html",
-	"logLevel":"INFO",
-	"allowCommunication":true,
-	"autoStart":true
+	"welcomeSign":"gardener/index.html",
+	"fields": [
+		{
+			"name": "storage",
+			"path": "../NIWA-Storage"
+		}
+	]
 }

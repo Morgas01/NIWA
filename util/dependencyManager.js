@@ -1,6 +1,5 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
 
-	let gui=require("morgas.gui");
 	let Concat=require("concat-with-sourcemaps");
 
 	SC=SC({
@@ -23,16 +22,14 @@
 		relativeTo=SC.File.stringToFile(relativeTo);
 
 		let replaceDirs=[
-			[normalizePath(relativeTo.getAbsolutePath()),"."],
-			[normalizePath(µ.dirname)+"/","/morgas/"],
-			[normalizePath(gui.dirname)+"/","/morgas/gui/"]
+			[normalizePath(relativeTo.getAbsolutePath()),"."]
 		];
 
 		let resouceMap=new Map();
 
 		let parser=(new SC.dependencyParser()).addSources(files)
 		.addModuleRegister(SC.morgasModuleRegister,µ.dirname).addModuleDependencies(SC.morgasModuleDependencies,µ.dirname)
-		.addModuleRegister(SC.morgasGuiModuleRegister,gui.dirname).addModuleDependencies(SC.morgasGuiModuleDependencies,gui.dirname);
+		//.addModuleRegister(SC.morgasGuiModuleRegister,gui.dirname).addModuleDependencies(SC.morgasGuiModuleDependencies,gui.dirname);
 
 		let getFile=function(path)
 		{

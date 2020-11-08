@@ -1,9 +1,9 @@
 module.exports=async function(request)
 {
-	let chunks=[];
+	let data="";
 	for await (let chunk of request)
 	{
-		chunks.push(chunk);
+		data+=chunk;
 	}
-	return Buffer.concat(chunks);
+	return data;
 };
