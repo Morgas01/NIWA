@@ -1,10 +1,4 @@
 {
 	"port":8081,
-	"welcomeSign":"gardener/index.html",
-	"fields": [
-		{
-			"name": "storage",
-			"path": "../NIWA-Storage"
-		}
-	]
+	"welcomeSign":"gardener/index.html"
 }

@@ -28,14 +28,18 @@ body {
 					"path path"
 					"neighbors neighbors";
 }
-.field[data-state="open"] {
-	background: ;
+.field[data-state="close"] .field-state[data-action="close"] {
+	display: none;
 }
 .field-name {
 	grid-area: name;
 }
 .field-state {
 	grid-area: state;
+	font-size: 2em;
+	height: 1.5em;
+	text-align: right;
+	cursor: pointer;
 }
 .field-path {
 	grid-area: path;

@@ -18,7 +18,7 @@ module.exports={
 			error
 		};
 	},
-	remove(param)
+	async remove(param)
 	{
 		if(!param.data)
 		{
@@ -32,7 +32,7 @@ module.exports={
 			error
 		};
 	},
-	open(param)
+	async open(param)
 	{
 		if(!param.data)
 		{
@@ -46,7 +46,7 @@ module.exports={
 			error
 		};
 	},
-	close(param)
+	async close(param)
 	{
 		if(!param.data)
 		{
