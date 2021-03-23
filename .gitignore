@@ -10,4 +10,6 @@ build/
 logs/
 config/
 work/
+shed/
+config/
 *.log
