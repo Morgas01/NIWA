@@ -1,13 +1,15 @@
 (function(µ,SMOD,GMOD,HMOD,SC){
 
 	SC=SC({
+		File:"File",
 		es:"errorSerializer"
 	});
 
 	let ServiceResult=µ.Class({
-		constructor:function({status=200,headers={},data=null}={})
+		constructor:function({status=200,headers={},data=null,file=null}={})
 		{
 			this.data=data;
+			this.file=SC.File.fileToString(file);
 			this.headers=headers;
 			this.status=status;
 		},
@@ -26,6 +28,10 @@
 		if(data instanceof ServiceResult)
 		{
 			return data;
+		}
+		else if (data instanceof SC.File)
+		{
+			data={file:data};
 		}
 		else if(data==null||typeof data!=="object"||!("status" in data||"headers" in data))
 		{

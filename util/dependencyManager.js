@@ -43,7 +43,7 @@
 
 		let resolveFile=function(parseResults,filepath)
 		{
-			let toResolve
+			let toResolve;
 			let isConsumer=(filepath in parseResults.consumingDependencies);
 			if(isConsumer)
 			{
