@@ -38,7 +38,7 @@
 			let allDependencies=await dependencyManager.getAllDependencies();
 			if(url in allDependencies.urlToPath)
 			{
-				return new SC.File(dependencyManager.basePath).changePath(allDependencies.urlToPath[url]);
+				return new SC.File(dependencyManager.sourcesBasePath).changePath(allDependencies.urlToPath[url]);
 			}
 			else
 			{
