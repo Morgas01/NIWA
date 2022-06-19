@@ -21,6 +21,7 @@
 			let allDependencies=await dependencyManager.getAllDependencies();
 			if(url in allDependencies.urlDependencies)
 			{
+				//TODO use DependencyManager.resolve() ?
 				let resolver=new SC.DependencyResolver(allDependencies.urlDependencies);
 				let urls=resolver.resolve(url);
 				//TODO return import script;
